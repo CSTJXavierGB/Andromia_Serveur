@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
-import { strict } from 'assert';
-import { timeStamp } from 'console';
 
 const allySchema = mongoose.Schema(
     {
