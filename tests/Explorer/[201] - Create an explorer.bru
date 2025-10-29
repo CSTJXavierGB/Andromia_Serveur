@@ -1,0 +1,32 @@
+meta {
+  name: [201] - Create an explorer
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/explorers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username":"explorer1",
+    "password":"explorer123456",
+    "vault":{
+      "inox":13,
+      "elements":[
+        {
+          "quantity":2,
+          "element":"Sm"
+        },
+        {
+          "quantity":5,
+          "element":"Xr"
+        }
+      ]
+    },
+    "location":"Montreal"
+  }
+}

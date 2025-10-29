@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 const explorerSchema = mongoose.Schema(
     {
-        uuid: { type: String, required: true, unique: true, default: () => uuidv4() },
+        uuid: { type: String, required: true, unique: true, default: () => crypto.randomUUID() },
         username : { type: String, required: true, unique: true  },
         password : { type: String, required: true  },
         vault: {

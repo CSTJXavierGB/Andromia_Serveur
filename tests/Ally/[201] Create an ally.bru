@@ -1,0 +1,47 @@
+meta {
+  name: [201] Create an ally
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/allies?explorer=d995cb36-9d13-4f01-ac88-845f0bd142e9
+  body: json
+  auth: inherit
+}
+
+params:query {
+  explorer: d995cb36-9d13-4f01-ac88-845f0bd142e9
+}
+
+body:json {
+  {
+    "stats": {
+      "life": 28,
+      "speed": {
+        "low": 8,
+        "high": 8
+      },
+      "power": {
+        "low": 8,
+        "high": 10
+      },
+      "shield": {
+        "low": 0,
+        "high": 0
+      }
+    },
+    "kernel": [
+      "Q",
+      "A",
+      "Ye",
+      "Q",
+      "B"
+    ],
+    "name": "Elf",
+    "affinity": "life",
+    "asset": "https://assets.andromia.science/allies/elf.png"
+  }
+  
+        
+}
