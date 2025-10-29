@@ -1,4 +1,7 @@
 import { Explorer } from '../models/explorer.model.js';
+import jwt from 'jsonwebtoken';
+import parseDuration from 'parse-duration';
+
 import argon from 'argon2';
 import HttpErrors from 'http-errors';
 
@@ -46,6 +49,26 @@ class ExplorerRepository {
 
     retrieveByCredentials(username) {
         return Explorer.findOne({ username });
+    }
+
+    generateJWT(uuid) {
+        const access = jwt.sign(
+            {uuid: uuid},
+            process.env.JWT_TOKEN_SECRET,
+            {
+                expiresIn : process.env.JWT_TOKEN_LIFE,
+                issuer : process.env.BASE_URL
+            });
+        const refresh = jwt.sign(
+            {uuid:uuid},
+            process.env.JWT_REFRESH_SECRET,
+            {
+                expiresIn : process.env.JWT_REFRESH_LIFE,
+                issuer : process.env.BASE_URL
+            }
+        );
+        const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE)
+        return {access,refresh, expiresIn};
     }
 
     transform(explorer) {

@@ -7,6 +7,7 @@ import errors from './middlewares/errors.js';
 import alliesRoutes from './routes/allies.routes.js'
 import explorersrRoutes from './routes/explorer.routes.js'
 import sessionsRoutes from './routes/sessions.routes.js'
+import tokensRoutes from './routes/tokens.routes.js'
 const app = express();
 
 database();
@@ -20,6 +21,8 @@ app.head('/status', (req, res) => { res.status(200).end(); });
 app.use('/allies', alliesRoutes);
 app.use('/explorers', explorersrRoutes);
 app.use('/sessions', sessionsRoutes);
+app.use('/tokens', tokensRoutes);
+
 
 
 app.use(errors);
