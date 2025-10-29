@@ -1,50 +1,62 @@
 import { Ally } from '../models/ally.model.js';
-import dayjs from 'dayjs';
 import { Explorer } from '../models/explorer.model.js';
-import explorerRepository from './explorer.repository.js';
 
 
 class AllyRepository {
-    retrieveByCriteria(criteria, options) {
-        const retrieveQuery = Ally.find(criteria);
-        if (options.explorer) {
-            retrieveQuery.populate('explorer');
-        }
-        return retrieveQuery;
+    retrieveAll() {
+        return Ally.find().populate('explorer');
     }
 
-    retrieveByUUID(uuid, options = {}) {
-        const retrieveQuery = Ally.findOne({ uuid });
-        if (options.explorer) {
-            retrieveQuery.populate('explorer');
-        }
-        return retrieveQuery;
+    retrieveByCriteria(criteria) {
+        return Ally.find(criteria).populate('explorer');
+    }
+
+    retrieveByUUID(uuid) {
+        return Ally.findOne({ uuid }).populate('explorer');
     }
 
     async create(ally, options = {}) {
         if (options.explorer) {
-            const explorer = await Explorer.findOne({ uuid: options.explorer });
-            if (!explorer) {
-                throw new Error(`Explorer with uuid "${options.explorer}" not found`);
-            }
-            ally.explorer = explorer._id;
+            // Route passes the full explorer object, extract its _id
+            ally.explorer = options.explorer._id;
         }
-        return Ally.create(ally);
+        const newAlly = await Ally.create(ally);
+
+        // Populate explorer if it exists so transform can access the UUID
+        if (newAlly.explorer) {
+            await newAlly.populate('explorer');
+        }
+
+        return newAlly;
     }
 
     transform(ally, options = {}) {
-        const explorer = ally.explorer;
-
-
         ally.href = `${process.env.BASE_URL}/allies/${ally.uuid}`;
-        ally.explorer = {href : `${process.env.BASE_URL}/explorers/${ally.explorer.uuid}` };
 
-        if (options){
-            if (options.explorer) {
-                ally.explorer = explorerRepository.transform(explorer);
+        // Always include explorer href
+        if (ally.explorer) {
+            if (ally.explorer.uuid) {
+                // Explorer is populated
+                const explorerHref = `${process.env.BASE_URL}/explorers/${ally.explorer.uuid}`;
+
+                if (options.explorer) {
+                    // Embed useful explorer data
+                    // TODO : define what data to embed
+                    ally.explorer = {
+                        href: explorerHref,
+                        username: ally.explorer.username,
+                    
+                    };
+                } else {
+                    // Only keep the href
+                    ally.explorer = explorerHref;
+                }
+            } else {
+                // Explorer is just an ObjectId, remove it
+                delete ally.explorer;
             }
         }
-         
+
         delete ally.uuid;
         delete ally._id;
         delete ally.__v;
