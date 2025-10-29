@@ -7,7 +7,8 @@ const allySchema = mongoose.Schema(
         uuid: { type: String, required: true, unique: true, default: () => crypto.randomUUID() },
         explorer: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Explorer'
+            ref: 'Explorer',
+            //required: true
         },
         name: { type: String },
         asset: { type: String },
