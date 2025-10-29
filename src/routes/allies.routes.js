@@ -10,7 +10,7 @@ import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
 const router = express.Router();
 
 router.get('/:uuid', retrieveOne);
-
+router.post('/', validator, post);
 
 async function retrieveOne(req, res, next) {
     try {
@@ -25,6 +25,19 @@ async function retrieveOne(req, res, next) {
     } catch (err) {
         return next(err);
     }
+}
+
+async function post(req, res, next) {
+  try {
+    let newAlly = await alliesRepository.create(req.body);
+    res.header('Location', `${process.env.BASE_URL}/allys/${newAlly.uuid}`);
+  
+    newAlly = newAlly.toObject({ getters: false, virtuals: false });
+
+    res.status(201).json(newAlly);
+  } catch (err) {
+    return next(err);
+  }
 }
 
 export default router;
