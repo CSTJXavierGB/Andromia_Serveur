@@ -1,0 +1,19 @@
+meta {
+  name: [200] - Retrieve one explorer
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/explorers/:uuid
+  body: none
+  auth: bearer
+}
+
+params:path {
+  uuid: 21bc2dc7-1e9f-4d43-98d7-193ea5ff5a18
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjFiYzJkYzctMWU5Zi00ZDQzLTk4ZDctMTkzZWE1ZmY1YTE4IiwiaWF0IjoxNzYxNzYyMzE3LCJleHAiOjE3NjE3NjU5MTcsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCJ9.Y46UMMQZI7o2lzHtJT_5tSXnRhKCQhqqg8bznK1_d7k
+}
