@@ -19,7 +19,6 @@ async function retrieveOne(req, res, next) {
             return next(HttpErrors.NotFound(`L'allié avec le uuid "${req.params.uuid}" n'existe pas.`));
         } else {
             ally = ally.toObject({ getters: false, virtuals: false });
-            ally = alliesRepository.transform(ally);
             res.status(200).json(ally);
         }
     } catch (err) {
@@ -30,7 +29,7 @@ async function retrieveOne(req, res, next) {
 async function post(req, res, next) {
   try {
     let newAlly = await alliesRepository.create(req.body);
-    res.header('Location', `${process.env.BASE_URL}/allys/${newAlly.uuid}`);
+    res.header('Location', `${process.env.BASE_URL}/allies/${newAlly.uuid}`);
   
     newAlly = newAlly.toObject({ getters: false, virtuals: false });
 

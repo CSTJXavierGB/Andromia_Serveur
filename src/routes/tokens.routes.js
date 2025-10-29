@@ -3,12 +3,6 @@ import HttpErrors from 'http-errors';
 
 import { guardRefreshTokenJWT, revokeAuthorization } from '../middlewares/authorization.jwt.js';
 
-import accountRepository from '../repositories/account.repository.js';
-import clientRepository from '../repositories/client.repository.js';
-
-import TokenController from '../controllers/token.controller.js';
-const tokenController = new TokenController()
-
 const router = express.Router();
 
 router.post('/', guardRefreshTokenJWT, revokeAuthorization  , refresh);

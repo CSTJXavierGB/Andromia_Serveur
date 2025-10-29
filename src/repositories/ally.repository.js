@@ -3,8 +3,8 @@ import dayjs from 'dayjs';
 
 
 class AllyRepository {
-    retrieveByCriteria(criteria) {
-        return Ally.find(criteria);
+    retrieveByUUID(allyUUID) {
+        return Ally.findOne({ uuid: allyUUID });
     }
 
     create(ally) {

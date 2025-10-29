@@ -6,7 +6,8 @@ const allySchema = mongoose.Schema(
         uuid: { type: String, required: true, unique: true, default: () => crypto.randomUUID() },
         explorer: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Explorer'
+            ref: 'Explorer',
+            //required: true
         },
         name: { type: String },
         affinity: { type: String },
@@ -14,15 +15,15 @@ const allySchema = mongoose.Schema(
         life: { type: Number},
         speed: {
             low: { type: Number },
-            high: { type: Number },
+            high: { type: Number }
         },
         power: {
             low: { type: Number },
-            high: { type: Number },
+            high: { type: Number }
         },
         shield: {
             low: { type: Number },
-            high: { type: Number },
+            high: { type: Number }
         }
     },
     {
@@ -34,4 +35,4 @@ const allySchema = mongoose.Schema(
 
 const Ally = mongoose.model('Ally', allySchema);
 
-export { Ally };
+export default Ally;
