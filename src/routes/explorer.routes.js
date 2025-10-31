@@ -3,10 +3,7 @@ import HttpErrors from 'http-errors';
 
 import ExplorerRepository from '../repositories/explorer.repository.js';
 
-
- import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
-
-
+import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
 
 const router = express.Router();
 
@@ -19,15 +16,10 @@ async function post(req, res, next) {
     try {
         let explorer = await ExplorerRepository.create(req.body);
 
-        // TODO : JWT Tokens
-        // const tokens = ExplorerRepository.generateJWT(explorer.uuid);
-
-        explorer = explorer.toObject({getters:false, virtuals: false});
+        explorer = explorer.toObject({ getters: false, virtuals: false });
         explorer = ExplorerRepository.transform(explorer);
 
-        // TODO : add tokens in response
-        res.status(201).json({explorer});
-
+        res.status(201).json({ explorer });
     } catch (err) {
         return next(err);
     }
