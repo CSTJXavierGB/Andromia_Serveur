@@ -40,11 +40,25 @@ class ExplorerRepository {
 
 
     retrieveAll() {
-        return Explorer.find().populate('allies');
+        const retrieveQuery = Explorer.find();
+        if (options.allies) {
+            retrieveQuery.populate('allies')
+        }
+        if (options.explorations) {
+            retrieveQuery.populate('explorations')
+        }
+        return retrieveQuery;
     }
 
-    retrieveOne(uuid) {
-        return Explorer.findOne({ uuid }).populate('allies');
+    retrieveOne(uuid, options) {
+        const retrieveQuery = Explorer.findOne({ uuid });
+        if (options.allies) {
+            retrieveQuery.populate('allies')
+        }
+        if (options.explorations) {
+            retrieveQuery.populate('explorations')
+        }
+        return retrieveQuery;
     }
 
     retrieveByCredentials(username) {

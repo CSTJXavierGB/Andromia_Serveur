@@ -5,9 +5,11 @@ import database from './core/database.js';
 import errors from './middlewares/errors.js';
 
 import alliesRoutes from './routes/allies.routes.js';
-import explorersrRoutes from './routes/explorer.routes.js';
+import explorerRoutes from './routes/explorer.routes.js';
+import explorationRoutes from '.routes/explorations.routes.js'
 import sessionsRoutes from './routes/sessions.routes.js';
 import tokensRoutes from './routes/tokens.routes.js';
+
 const app = express();
 
 database();
@@ -23,7 +25,8 @@ app.head('/status', (req, res) => {
 });
 
 app.use('/allies', alliesRoutes);
-app.use('/explorers', explorersrRoutes);
+app.use('/explorers', explorerRoutes);
+app.use(explorationRoutes);
 app.use('/sessions', sessionsRoutes);
 app.use('/tokens', tokensRoutes);
 
