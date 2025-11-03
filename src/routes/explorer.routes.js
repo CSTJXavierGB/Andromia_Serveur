@@ -27,7 +27,13 @@ async function post(req, res, next) {
 
 async function retrieveOne(req, res, next) {
     try {
-        let explorer = await ExplorerRepository.retrieveOne(req.params.uuid);
+        // Check if the logged in explorer is the same as the one being retrieved
+        const explorerUuid = req.auth.uuid;
+        if (explorerUuid !== req.params.uuid) {
+            return next(HttpErrors.Forbidden());
+        }
+
+        let explorer = await ExplorerRepository.retrieveOne(explorerUuid);
         if (!explorer) {
             return next(HttpErrors.NotFound());
         } else {
