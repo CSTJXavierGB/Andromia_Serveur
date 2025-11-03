@@ -31,7 +31,14 @@ explorerSchema.virtual('allies', {
     localField: '_id',
     foreignField: 'explorer',
     justOne: false
-});
+})
+// TODO : add explorations virtual when Exploration model is created
+// explorerSchema.virtual('explorations', {
+//     ref: 'Exploration',
+//     localField: '_id',
+//     foreignField: 'explorer',
+//     justOne: false
+// })
 
 const Explorer = mongoose.model('Explorer', explorerSchema);
 

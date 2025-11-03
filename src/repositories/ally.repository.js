@@ -4,15 +4,21 @@ import { Explorer } from '../models/explorer.model.js';
 
 class AllyRepository {
     retrieveAll() {
-        return Ally.find().populate('explorer');
+        return Ally.find().populate('explorer' , 'uuid');
     }
 
-    retrieveByCriteria(criteria) {
-        return Ally.find(criteria).populate('explorer');
-    }
+    
 
-    retrieveByUUID(uuid) {
-        return Ally.findOne({ uuid }).populate('explorer');
+    retrieveByUUID(uuid, options ) {
+        let ally =  Ally.findOne({ uuid });
+
+        if (options && options.explorer) {
+            ally = ally.populate('explorer', 'uuid username');
+        }
+        else {
+            ally = ally.populate('explorer' , 'uuid');
+        }
+        return ally;
     }
 
     async create(ally, options = {}) {
@@ -24,37 +30,19 @@ class AllyRepository {
 
         // Populate explorer if it exists so transform can access the UUID
         if (newAlly.explorer) {
-            await newAlly.populate('explorer');
+            await newAlly.populate('explorer', 'uuid');
         }
 
         return newAlly;
     }
 
-    transform(ally, options = {}) {
+    transform(ally, options) {
         ally.href = `${process.env.BASE_URL}/allies/${ally.uuid}`;
 
-        // Always include explorer href
         if (ally.explorer) {
-            if (ally.explorer.uuid) {
-                // Explorer is populated
-                const explorerHref = `${process.env.BASE_URL}/explorers/${ally.explorer.uuid}`;
-
-                if (options.explorer) {
-                    // Embed useful explorer data
-                    // TODO : define what data to embed
-                    ally.explorer = {
-                        href: explorerHref,
-                        username: ally.explorer.username,
-                    
-                    };
-                } else {
-                    // Only keep the href
-                    ally.explorer = explorerHref;
-                }
-            } else {
-                // Explorer is just an ObjectId, remove it
-                delete ally.explorer;
-            }
+            ally.explorer.href = `${process.env.BASE_URL}/explorers/${ally.explorer.uuid}`;
+            delete ally.explorer.uuid;
+            delete ally.explorer._id;
         }
 
         delete ally.uuid;
