@@ -16,7 +16,6 @@ const explorerSchema = mongoose.Schema(
             ]
         },
         location: { type: String, default: '' }
-        // explorations : { type: Array, default: [] }
     },
     {
         collection: 'explorers',
@@ -28,6 +27,12 @@ const explorerSchema = mongoose.Schema(
 
 explorerSchema.virtual('allies', {
     ref: 'Ally',
+    localField: '_id',
+    foreignField: 'explorer',
+    justOne: false
+});
+explorerSchema.virtual('explorations', {
+    ref: 'Exploration',
     localField: '_id',
     foreignField: 'explorer',
     justOne: false

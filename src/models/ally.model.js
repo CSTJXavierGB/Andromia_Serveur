@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
-import { stat } from 'fs';
 
 const allySchema = mongoose.Schema(
     {
@@ -10,9 +9,9 @@ const allySchema = mongoose.Schema(
             ref: 'Explorer',
             //required: true
         },
-        name: { type: String },
+        name: { type: String, required: true },
         asset: { type: String },
-        affinity: { type: String },
+        affinity: { type: String, required: true },
         kernel : [ { type: String } ],
         stats: { 
             life: { type: Number},
@@ -28,7 +27,7 @@ const allySchema = mongoose.Schema(
                 low: { type: Number },
                 high: { type: Number },
             }
-            },
+        },
         
     },
     {
