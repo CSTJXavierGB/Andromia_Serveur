@@ -4,19 +4,18 @@ import crypto from 'crypto';
 const explorerSchema = mongoose.Schema(
     {
         uuid: { type: String, required: true, unique: true, default: () => crypto.randomUUID() },
-        username : { type: String, required: true, unique: true  },
-        password : { type: String, required: true  },
+        username: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
         vault: {
-            inox : { type: Number, default: 0  },
-            elements : [
+            inox: { type: Number, default: 0 },
+            elements: [
                 {
                     quantity: { type: Number, default: 0, min: 0 },
-                    element : { type: String, default: "" }
+                    element: { type: String, default: '' }
                 }
             ]
-            
         },
-        location : { type: String  },
+        location: { type: String, default: '' }
         // explorations : { type: Array, default: [] }
     },
     {

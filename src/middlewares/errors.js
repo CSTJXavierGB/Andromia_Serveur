@@ -47,9 +47,9 @@ export default (err, req, res, next) => {
 
     error.moreInfo = `http://documentation/errors/${error.status}`;
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.ENV === 'development') {
         console.log(error.developerMessage);
-    } else if (process.env.NODE_ENV === 'production') {
+    } else if (process.env.ENV === 'production') {
         delete error.developerMessage;
     }
 
