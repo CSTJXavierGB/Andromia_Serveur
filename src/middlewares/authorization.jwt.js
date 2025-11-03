@@ -1,7 +1,6 @@
 import { expressjwt } from 'express-jwt';
 
 import tokenRepository from '../repositories/token.repository.js';
-import { profileEnd } from 'console';
 
 const guardAuthorizationJWT = expressjwt({
     secret: process.env.JWT_TOKEN_SECRET,

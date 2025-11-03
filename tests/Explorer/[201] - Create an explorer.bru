@@ -1,0 +1,19 @@
+meta {
+  name: [201] - Create an explorer
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/explorers
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username":"explorer3",
+    "password":"explorer123456"
+    
+  }
+}

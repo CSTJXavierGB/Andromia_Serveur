@@ -1,0 +1,18 @@
+meta {
+  name: [401] - Unauthorized Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/sessions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username":"explorer",
+    "password":"explorer123456"
+  }
+}

@@ -1,0 +1,18 @@
+meta {
+  name: [201] - Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/sessions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username":"explorer1",
+    "password":"explorer123456"
+  }
+}

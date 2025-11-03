@@ -1,22 +1,21 @@
 import mongoose from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 const explorerSchema = mongoose.Schema(
     {
-        uuid: { type: String, required: true, unique: true, default: () => uuidv4() },
-        username : { type: String, required: true, unique: true  },
-        password : { type: String, required: true  },
+        uuid: { type: String, required: true, unique: true, default: () => crypto.randomUUID() },
+        username: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
         vault: {
-            inox : { type: Number, default: 0  },
-            elements : [
+            inox: { type: Number, default: 0 },
+            elements: [
                 {
                     quantity: { type: Number, default: 0, min: 0 },
-                    element : { type: String, default: "" }
+                    element: { type: String, default: '' }
                 }
             ]
-            
         },
-        location : { type: String  },
+        location: { type: String, default: '' }
         // explorations : { type: Array, default: [] }
     },
     {
@@ -32,7 +31,7 @@ explorerSchema.virtual('allies', {
     localField: '_id',
     foreignField: 'explorer',
     justOne: false
-})
+});
 
 const Explorer = mongoose.model('Explorer', explorerSchema);
 

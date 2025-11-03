@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
+import { stat } from 'fs';
 
 const allySchema = mongoose.Schema(
     {
@@ -10,26 +11,30 @@ const allySchema = mongoose.Schema(
             //required: true
         },
         name: { type: String },
+        asset: { type: String },
         affinity: { type: String },
         kernel : [ { type: String } ],
-        life: { type: Number},
-        speed: {
-            low: { type: Number },
-            high: { type: Number }
-        },
-        power: {
-            low: { type: Number },
-            high: { type: Number }
-        },
-        shield: {
-            low: { type: Number },
-            high: { type: Number }
-        }
+        stats: { 
+            life: { type: Number},
+            speed: {
+                low: { type: Number },
+                high: { type: Number },
+            },
+            power: {
+                low: { type: Number },
+                high: { type: Number },
+            },
+            shield: {
+                low: { type: Number },
+                high: { type: Number },
+            }
+            },
+        
     },
     {
         collection: 'allies',
         strict: 'throw',
-        timeStamp: true
+        timestamps: true
     }
 );
 
