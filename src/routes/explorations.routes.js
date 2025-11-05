@@ -1,16 +1,16 @@
 import express from 'express';
 import HttpError from 'http-errors';
-import axios, { all } from 'axios';
+import axios from 'axios';
 
 import validator from '../middlewares/validator.js';
 
 import explorationRepository from '../repositories/exploration.repository.js';
-import explorerRepository from "./explorer.repository";
+import explorerRepository from "../repositories/explorer.repository.js";
 import allyRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
 
-router.post('explorer/:uuid/exploration/:key', post);
+router.post('/explorer/:uuid/exploration/:key', post);
 
 async function post(req, res, next) {
     try {
@@ -30,16 +30,19 @@ async function post(req, res, next) {
             return next(HttpError.NotFound(`L'explorateur avec le UUID "${req.params.uuid}" n'existe pas.`));
         }
 
-        //Post de l'ally
-        let ally = allyRepository.transformBD(exploration.ally);
-        ally = allyRepository.create(ally);
+        //Post de l'ally si un est trouvé
+        let ally = exploration.ally;
+        if (ally) {
+            ally = allyRepository.transformBD(ally, explorer);
+            ally = await allyRepository.create(ally);
+        }
 
         //Post de l'exploration
         exploration = explorationRepository.transformBD(exploration, explorer, ally);
-        let newExploration = explorationRepository.create(exploration);
+        let newExploration = await explorationRepository.create(exploration);
 
-        newExploration.toObject({ getters: false, virtuals: false });
-        newExploration = explorationRepository.transform();
+        newExploration = newExploration.toObject({ getters: false, virtuals: false });
+        newExploration = explorationRepository.transform(newExploration);
 
         res.status(201).json(newExploration);
     } catch (err) {

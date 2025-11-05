@@ -37,8 +37,9 @@ async function post(req, res, next) {
         explorer: true
     };
     try {
+        let explorer;
         if (req.query.explorer) {
-            const explorer = await explorerRepository.retrieveOne(req.query.explorer);
+            explorer = await explorerRepository.retrieveOne(req.query.explorer);
             if (!explorer) {
                 return next(HttpError.BadRequest(`L'explorateur avec le uuid "${req.query.explorer}" n'existe pas.`));
             }

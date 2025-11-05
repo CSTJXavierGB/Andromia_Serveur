@@ -12,14 +12,15 @@ const explorationSchema = mongoose.Schema(
             elements: [
                 {
                     quantity: { type: Number, default: 0, min: 0 },
-                    element: { type: String, default: '' }
+                    element: { type: String, default: '' },
+                    _id: false
                 }
             ]
         },
         ally: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Ally',
-            required: true
+            required: false //Un exploration peu retrouner aucun ally
         },
         explorer: {
             type: mongoose.Schema.Types.ObjectId,
@@ -28,7 +29,7 @@ const explorationSchema = mongoose.Schema(
         }
     },
     {
-        collection: 'allies',
+        collection: 'explorations',
         strict: 'throw',
         timestamps: true
     }

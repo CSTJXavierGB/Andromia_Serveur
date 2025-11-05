@@ -1,4 +1,4 @@
-import { Ally } from '../models/ally.model.js';
+import Ally from '../models/ally.model.js';
 
 
 class AllyRepository {
@@ -44,7 +44,7 @@ class AllyRepository {
         return retrieveQuery;
     }
 
-    async create(ally, explorer, options = {}) {
+    async create(ally, explorer = "", options = {}) {
         if (explorer) {
             // Route passes the full explorer object, extract its _id
             ally.explorer = explorer._id;
@@ -59,10 +59,8 @@ class AllyRepository {
         return newAlly;
     }
 
-    //Prend la réponse brute d'un 'ally' du serveur andromia.science et le modifie pour le post en DB à partir d'un object explorateur
-    transformBD(ally, explorer) {
-
-        ally.explorer = explorer._id;
+    //Prend la réponse brute d'un 'ally' du serveur andromia.science et le modifie pour le post en DB
+    transformBD(ally) {
 
         delete ally.expireAt;
         delete ally.updatedAt;

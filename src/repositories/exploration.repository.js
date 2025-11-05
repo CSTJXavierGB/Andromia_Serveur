@@ -1,4 +1,4 @@
-import Exploration from "../models/exploration.model";
+import Exploration from "../models/exploration.model.js";
 
 class ExplorationRepository {
 
@@ -8,8 +8,10 @@ class ExplorationRepository {
 
     //Prend la réponse brute du serveur andromia.science et le modifie pour le post en DB à partir d'un object explorateur
     transformBD(exploration, explorer, ally) {
+        if (ally) {
+            exploration.ally = ally._id
+        }
 
-        exploration.ally = ally._id
         exploration.explorer = explorer._id;
         exploration.from = explorer.location;
         exploration.to = exploration.destination;

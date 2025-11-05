@@ -6,7 +6,7 @@ import errors from './middlewares/errors.js';
 
 import alliesRoutes from './routes/allies.routes.js';
 import explorerRoutes from './routes/explorer.routes.js';
-import explorationRoutes from '.routes/explorations.routes.js'
+import explorationRoutes from './routes/explorations.routes.js'
 import sessionsRoutes from './routes/sessions.routes.js';
 import tokensRoutes from './routes/tokens.routes.js';
 
@@ -26,7 +26,7 @@ app.head('/status', (req, res) => {
 
 app.use('/allies', alliesRoutes);
 app.use('/explorers', explorerRoutes);
-app.use('/', explorationRoutes);
+app.use(explorationRoutes);
 app.use('/sessions', sessionsRoutes);
 app.use('/tokens', tokensRoutes);
 
