@@ -1,10 +1,12 @@
 import express from 'express';
 import HttpError from 'http-errors';
-import axios from 'axios';
+import axios, { all } from 'axios';
 
 import validator from '../middlewares/validator.js';
 
 import explorationRepository from '../repositories/exploration.repository.js';
+import explorerRepository from "./explorer.repository";
+import allyRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
 
@@ -14,17 +16,32 @@ async function post(req, res, next) {
     try {
         //Get les informations de l'exploration du serveur andromia
         const portalUrl = process.env.EXPLORATION_URL + '/' + req.params.key;        
-        const res = await axios.get(portalUrl);
+        const portalRes = await axios.get(portalUrl);
 
-        if (res.status !== 200) {
+        if (portalRes.status !== 200) {
             return next(HttpError.NotFound(`Le portail avec la clée "${req.params.key}" n'existe pas.`));
         }
 
-        const exploration = res.data;
+        let exploration = portalRes.data;
+
+        //Trouve l'explorateur pour faire la référence avec l'exploration
+        let explorer = await explorerRepository.retrieveOne(req.params.uuid);
+        if (!explorer) {
+            return next(HttpError.NotFound(`L'explorateur avec le UUID "${req.params.uuid}" n'existe pas.`));
+        }
+
+        //Post de l'ally
+        let ally = allyRepository.transformBD(exploration.ally);
+        ally = allyRepository.create(ally);
 
         //Post de l'exploration
-        let newExploration
+        exploration = explorationRepository.transformBD(exploration, explorer, ally);
+        let newExploration = explorationRepository.create(exploration);
 
+        newExploration.toObject({ getters: false, virtuals: false });
+        newExploration = explorationRepository.transform();
+
+        res.status(201).json(newExploration);
     } catch (err) {
         return next(err);
     }

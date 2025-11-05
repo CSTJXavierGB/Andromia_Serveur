@@ -39,8 +39,13 @@ class ExplorerRepository {
     }
 
 
-    retrieveAll() {
+    retrieveAll(options) {
         const retrieveQuery = Explorer.find();
+
+        if (!options) {
+            return retrieveQuery;
+        }
+
         if (options.allies) {
             retrieveQuery.populate('allies')
         }
@@ -52,6 +57,11 @@ class ExplorerRepository {
 
     retrieveOne(uuid, options) {
         const retrieveQuery = Explorer.findOne({ uuid });
+
+        if (!options) {
+            return retrieveQuery;
+        }
+        
         if (options.allies) {
             retrieveQuery.populate('allies')
         }

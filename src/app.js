@@ -26,7 +26,7 @@ app.head('/status', (req, res) => {
 
 app.use('/allies', alliesRoutes);
 app.use('/explorers', explorerRoutes);
-app.use(explorationRoutes);
+app.use('/', explorationRoutes);
 app.use('/sessions', sessionsRoutes);
 app.use('/tokens', tokensRoutes);
 
