@@ -1,33 +1,80 @@
 import { Ally } from '../models/ally.model.js';
-import { Explorer } from '../models/explorer.model.js';
 
 
 class AllyRepository {
-    retrieveAll() {
-        return Ally.find().populate('explorer');
-    }
+    retrieveAll(options = {}) {
+        const retrieveQuery = Ally.find();
 
-    retrieveByCriteria(criteria) {
-        return Ally.find(criteria).populate('explorer');
-    }
+        if (!options) {
+            return retrieveQuery;
+        }
 
-    retrieveByUUID(uuid) {
-        return Ally.findOne({ uuid }).populate('explorer');
-    }
-
-    async create(ally, options = {}) {
         if (options.explorer) {
+            retrieveQuery.populate('explorer')
+        }
+
+        return retrieveQuery;
+    }
+
+    retrieveByCriteria(criteria, options = {}) {
+        const retrieveQuery = Ally.find(criteria);
+
+        if (!options) {
+            return retrieveQuery;
+        }
+
+        if (options.explorer) {
+            retrieveQuery.populate('explorer')
+        }
+
+        return retrieveQuery;
+    }
+
+    retrieveByUUID(uuid, options = {}) {
+        const retrieveQuery = Ally.findOne({ uuid });
+
+        if (!options) {
+            return retrieveQuery;
+        }
+
+        if (options.explorer) {
+            retrieveQuery.populate('explorer')
+        }
+
+        return retrieveQuery;
+    }
+
+    async create(ally, explorer, options = {}) {
+        if (explorer) {
             // Route passes the full explorer object, extract its _id
-            ally.explorer = options.explorer._id;
+            ally.explorer = explorer._id;
         }
         const newAlly = await Ally.create(ally);
 
-        // Populate explorer if it exists so transform can access the UUID
-        if (newAlly.explorer) {
+        // Populate explorer if it requested so transform can access the UUID
+        if (options.explorer) {
             await newAlly.populate('explorer');
         }
 
         return newAlly;
+    }
+
+    //Prend la réponse brute d'un 'ally' du serveur andromia.science et le modifie pour le post en DB à partir d'un object explorateur
+    transformBD(ally, explorer) {
+
+        ally.explorer = explorer._id;
+
+        delete ally.expireAt;
+        delete ally.updatedAt;
+        delete ally.createdAt;
+        delete ally.href;
+        delete ally.essence;
+        delete ally.uuid; //BD va reassigner le uuid
+        delete ally.archiveIndex;
+        delete ally.books;
+        delete ally.crypto;
+        
+        return ally;
     }
 
     transform(ally, options = {}) {

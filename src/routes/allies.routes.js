@@ -33,16 +33,18 @@ async function retrieveOne(req, res, next) {
 }
 
 async function post(req, res, next) {
-    const options = {};
+    const options = {
+        explorer: true
+    };
     try {
         if (req.query.explorer) {
-            options.explorer = await explorerRepository.retrieveOne(req.query.explorer);
-            if (!options.explorer) {
+            const explorer = await explorerRepository.retrieveOne(req.query.explorer);
+            if (!explorer) {
                 return next(HttpError.BadRequest(`L'explorateur avec le uuid "${req.query.explorer}" n'existe pas.`));
             }
         }
 
-        let newAlly = await alliesRepository.create(req.body, options);
+        let newAlly = await alliesRepository.create(req.body, explorer, options);
         newAlly = newAlly.toObject({ getters: false, virtuals: false });
         newAlly = alliesRepository.transform(newAlly, options);
 
