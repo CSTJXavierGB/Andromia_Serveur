@@ -15,7 +15,7 @@ class ExplorerRepository {
             throw new Error('Error hashing password');
         }
 
-    }
+    }    
 
     async validatePassword(password, explorer) {
         return await argon.verify(explorer.password, password)

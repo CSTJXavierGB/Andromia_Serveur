@@ -3,7 +3,23 @@ import Exploration from "../models/exploration.model.js";
 class ExplorationRepository {
 
     async create(exploration) {
-        return Exploration.create(exploration);
+        return await Exploration.create(exploration);
+    }
+
+    async retrieveOne(uuid, options) {
+        const retrieveQuery = Exploration.findOne({ uuid });
+
+        if (!options) {
+            return retrieveQuery;
+        }
+        
+        if (options.ally) {
+            retrieveQuery.populate('ally')
+        }
+        if (options.explorer) {
+            retrieveQuery.populate('explorer')
+        }
+        return retrieveQuery;
     }
 
     //Prend la réponse brute du serveur andromia.science et le modifie pour le post en DB à partir d'un object explorateur

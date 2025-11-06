@@ -1,6 +1,7 @@
 import express from 'express';
 import HttpError from 'http-errors';
 import axios from 'axios';
+import dayjs from 'dayjs';
 
 import validator from '../middlewares/validator.js';
 
@@ -11,6 +12,35 @@ import allyRepository from '../repositories/ally.repository.js';
 const router = express.Router();
 
 router.post('/explorer/:uuid/exploration/:key', post);
+router.post('/exploration/:uuid/adopt', patch);
+
+
+async function patch(req, res, next) {
+    try {
+        const exploration = explorationRepository.retrieveOne(req.params.uuid, {ally: true});
+        if (!exploration) {
+            return next(HttpError.NotFound(`L'exploration avec le uuid ${req.params.uuidExploration} n'existe pas.`));
+        }
+        //Vérification du temps depuis la création de l'exploration
+        const expireDate = dayjs(exploration.explorationDate)
+                            .add(process.env.EXPLORATION_EXPIRE_MINUTE, 'minute');
+        if (dayjs().isAfter(expireDate)) {
+            return next(HttpError.Forbidden("La période de temps pour adopter L'allié s'est expiré."));
+        }
+
+        let ally = exploration.ally;
+        ally.explorer = exploration.explorer;
+
+        let newAlly = allyRepository.update(ally.uuid, ally);
+
+        newAlly = newAlly.toObject({ getters: false, virtuals: false });
+        newAlly = allyRepository.transform(newAlly);
+
+        res.status(200).json(newAlly);
+    } catch (err) {
+        next(err);
+    }
+}
 
 async function post(req, res, next) {
     try {

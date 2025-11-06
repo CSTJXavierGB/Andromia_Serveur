@@ -59,6 +59,14 @@ class AllyRepository {
         return newAlly;
     }
 
+    update(allyUUID, ally) {
+        return Ally.findOneAndUpdate(
+            { uuid:allyUUID }, 
+            { $set: Object.assign(ally) }, 
+            { runValidators: true, new: true }
+        );
+    }
+
     //Prend la réponse brute d'un 'ally' du serveur andromia.science et le modifie pour le post en DB
     transformBD(ally) {
 
