@@ -6,7 +6,22 @@ class ExplorationRepository {
         return await Exploration.create(exploration);
     }
 
-    async retrieveOne(uuid, options) {
+    retrieveByCriteria(criteria, options) {
+
+        const retrieveQuery = Exploration.find(criteria);
+
+        if(options.ally) {
+            retrieveQuery.populate('ally');
+        }
+        if(options.explorer) {
+            retrieveQuery.populate('explorer');
+        }
+
+        return retrieveQuery;
+
+    }
+
+    retrieveOne(uuid, options) {
         const retrieveQuery = Exploration.findOne({ uuid });
 
         if (!options) {
@@ -41,6 +56,8 @@ class ExplorationRepository {
     transform(exploration) {
         exploration.href = `${process.env.BASE_URL}/exploration/${exploration.uuid}`;
         exploration.adoptionHref = `${process.env.BASE_URL}/exploration/${exploration.uuid}/adopt`;
+
+        exploration.explorationDate = dayjs(exploration.explorationDate).format('YYYY-MM-DD');
 
         delete exploration._id;
         delete exploration.__v;
