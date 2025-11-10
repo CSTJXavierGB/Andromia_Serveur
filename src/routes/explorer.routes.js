@@ -11,6 +11,7 @@ router.post('/', post);
 // TODO : Remove route, only for testing purposes
 // router.get('/', retrieveAll);
 router.get('/:uuid', guardAuthorizationJWT, retrieveOne);
+router.get('/:uuid/elements', guardAuthorizationJWT, retrieveElements);
 
 async function post(req, res, next) {
     try {
@@ -20,6 +21,26 @@ async function post(req, res, next) {
         explorer = ExplorerRepository.transform(explorer);
 
         res.status(201).json({ explorer });
+    } catch (err) {
+        return next(err);
+    }
+}
+
+async function retrieveElements(req, res, next) {
+    try {
+        // Check if the logged in explorer is the same as the one being retrieved
+        const explorerUuid = req.auth.uuid;
+        if (explorerUuid !== req.params.uuid) {
+            return next(HttpErrors.Forbidden());
+        }
+        let explorer = await ExplorerRepository.retrieveOne(explorerUuid);
+        if (!explorer) {
+            return next(HttpErrors.NotFound());
+        } else {
+            explorer = explorer.toObject({ getters: false, virtuals: false });
+            explorer = ExplorerRepository.transform(explorer);
+            res.status(200).json(explorer.vault.elements);
+        }
     } catch (err) {
         return next(err);
     }
