@@ -18,7 +18,6 @@ router.patch('/explorations/:uuid/adopt', patch);
 async function retrieveAllFromExplorer(req, res, next) {  
   try {
     let options = {};
-    let filter = { 'explorer' : req.params.uuid };
 
     if (req.query.embed) {
       const embeds = req.query.embed;
@@ -30,11 +29,20 @@ async function retrieveAllFromExplorer(req, res, next) {
       }
     }
 
-    let explorations = await explorationsRepository.retrieveByCriteria(filter, options);
+    //Get l'explorer pour son id
+    let explorer = await explorersRepository.retrieveOne(req.params.uuid);
+    if (!explorer) {
+      return next(HttpError.NotFound(`L'explorateur avec le uuid "${req.params.uuid}" n'existe pas.`));
+    }
+
+    let explorations = await explorationsRepository.retrieveByCriteria({ "explorer" : explorer._id}, options);
+    if (!explorations) {
+      return next(HttpError.NotFound(`Aucune exploration lié à l'explorateur avec le uuid "${req.params.uuid}" n'a été trouvé.`));
+    }
 
     explorations = explorations.map((e) => {
       e = e.toObject({ getters: false, virtuals: false });
-      e = explorationsRepository.transform(e);
+      e = explorationsRepository.transform(e, options);
       return e;
     });
 
@@ -75,9 +83,14 @@ async function post(req, res, next) {
   try {
     //Get les informations de l'exploration du serveur andromia
     const portalUrl = process.env.EXPLORATION_URL + '/' + req.params.key;
-    const portalRes = await axios.get(portalUrl);
+    const portalRes = await axios.get(portalUrl, {
+      //Si le status est 404(géré plus bas) ou 200 throw une erreur(default est throw si non 200)
+      validateStatus: status => {
+        return status === 404 || status === 200
+      }
+    });
 
-    if (portalRes.status !== 200) {
+    if (portalRes.status === 404) {
       return next(HttpError.NotFound(`Le portail avec la clée "${req.params.key}" n'existe pas.`));
     }
 
@@ -102,6 +115,10 @@ async function post(req, res, next) {
 
     newExploration = newExploration.toObject({ getters: false, virtuals: false });
     newExploration = explorationsRepository.transform(newExploration);
+
+    //L'exploration est un succès patch la location de l'explorateur
+    explorer.location = newExploration.to;
+    explorersRepository.update(explorer.uuid, explorer);
 
     res.status(201).json(newExploration);
   } catch (err) {
