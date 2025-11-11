@@ -28,7 +28,7 @@ class ExplorationRepository {
     }
 
     //Prend la réponse brute du serveur andromia.science et le modifie pour le post en DB à partir d'un object explorateur
-    transformBD(exploration, explorer, ally) {
+    transformBdExploration(exploration, explorer, ally) {
         if (ally) {
             exploration.ally = ally._id
         }
@@ -36,11 +36,53 @@ class ExplorationRepository {
         exploration.explorer = explorer._id;
         exploration.from = explorer.location;
         exploration.to = exploration.destination;
-
+        
         delete exploration.destination;
         delete exploration.affinity;
         
         return exploration;
+    }
+
+    //Prend la réponse brute d'un 'ally' du serveur andromia.science et le modifie pour le post en DB
+    transformBdAlly(ally) {
+
+        delete ally.expireAt;
+        delete ally.updatedAt;
+        delete ally.createdAt;
+        delete ally.href;
+        delete ally.essence;
+        delete ally.uuid; //BD va reassigner le uuid
+        delete ally.archiveIndex;
+        delete ally.books;
+        delete ally.crypto;
+        
+        return ally;
+    }
+
+    //Modifie les champ de l'explorateur pour accepter les addition de l'exploration
+    transformBdExplorer(exploration, explorer) {
+        explorer.location = exploration.to;
+
+        if (!exploration.vault) {
+            return explorer;
+        }
+
+        explorer.vault.inox += exploration.vault.inox;
+
+        //Pour chaque nouveau éléments
+        exploration.vault.elements.forEach(e => {
+            //trouve s'il existe déjà dans la liste de l'explorateur
+            let explorerElementIndex = explorer.vault.elements.findIndex(eE => eE.element === e.element);
+            if (explorerElementIndex !== -1) {
+                //Si oui augment la quantité
+                explorer.vault.elements[explorerElementIndex].quantity += e.quantity;
+            } else {
+                //Sinon ajoute l'élément à sa liste
+                explorer.vault.elements.push(e);
+            }
+        });
+        
+        return explorer;
     }
 
     transform(exploration, options = {}) {
@@ -48,19 +90,22 @@ class ExplorationRepository {
         const explorer = exploration.explorer;
         const ally = exploration.ally;
         
-        exploration.explorer = { href : `${process.env.BASE_URL}/explorer/${exploration.explorer.uuid}`};
-        exploration.ally = { href : `${process.env.BASE_URL}/ally/${exploration.ally.uuid}`};
+        exploration.explorer = { href : `${process.env.BASE_URL}/explorer/${explorer.uuid}`};
 
-        if (options.ally) {
-            exploration.ally = allyRepository.transform(ally);
+        //Il est possible qu'il n'y est aucun allié relier a l'exploration
+        if (ally) {
+            exploration.ally = { href : `${process.env.BASE_URL}/ally/${ally.uuid}`};
+
+            if (options.ally) {
+                exploration.ally = allyRepository.transform(ally);
+            }
         }
+        
         if (options.explorer) {
             exploration.explorer = explorerRepository.transform(explorer);
         }
 
-
         exploration.href = `${process.env.BASE_URL}/exploration/${exploration.uuid}`;
-        exploration.adoptionHref = `${process.env.BASE_URL}/exploration/${exploration.uuid}/adopt`;
 
         exploration.explorationDate = dayjs(exploration.explorationDate).format('YYYY-MM-DD');        
 

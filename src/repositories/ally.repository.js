@@ -65,23 +65,7 @@ class AllyRepository {
             { $set: Object.assign(ally) }, 
             { runValidators: true, new: true }
         );
-    }
-
-    //Prend la réponse brute d'un 'ally' du serveur andromia.science et le modifie pour le post en DB
-    transformBD(ally) {
-
-        delete ally.expireAt;
-        delete ally.updatedAt;
-        delete ally.createdAt;
-        delete ally.href;
-        delete ally.essence;
-        delete ally.uuid; //BD va reassigner le uuid
-        delete ally.archiveIndex;
-        delete ally.books;
-        delete ally.crypto;
-        
-        return ally;
-    }
+    }    
 
     transform(ally, options = {}) {
         ally.href = `${process.env.BASE_URL}/allies/${ally.uuid}`;

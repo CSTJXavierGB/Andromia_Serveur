@@ -11,7 +11,8 @@ const explorerSchema = mongoose.Schema(
             elements: [
                 {
                     quantity: { type: Number, default: 0, min: 0 },
-                    element: { type: String, default: '' }
+                    element: { type: String, default: '' },
+                    _id: false
                 }
             ]
         },

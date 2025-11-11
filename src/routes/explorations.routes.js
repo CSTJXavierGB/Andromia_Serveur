@@ -81,7 +81,7 @@ async function patch(req, res, next) {
 
 async function post(req, res, next) {
   try {
-    //Get les informations de l'exploration du serveur andromia
+    //---Get les informations de l'exploration du serveur andromia---
     const portalUrl = process.env.EXPLORATION_URL + '/' + req.params.key;
     const portalRes = await axios.get(portalUrl, {
       //Si le status est 404(géré plus bas) ou 200 throw une erreur(default est throw si non 200)
@@ -96,29 +96,39 @@ async function post(req, res, next) {
 
     let exploration = portalRes.data;
 
-    //Trouve l'explorateur pour faire la référence avec l'exploration
+    //---Trouve l'explorateur---
     let explorer = await explorersRepository.retrieveOne(req.params.uuid);
     if (!explorer) {
       return next(HttpError.NotFound(`L'explorateur avec le UUID "${req.params.uuid}" n'existe pas.`));
     }
 
-    //Post de l'ally si un est trouvé
+    //---Post de l'ally---
     let ally = exploration.ally;
+    //il est possible qu'auncun ally soit trouvé
     if (ally) {
-      ally = alliesRepository.transformBD(ally);
+      ally = explorationsRepository.transformBdAlly(ally);
       ally = await alliesRepository.create(ally);
-    }
+    }    
 
-    //Post de l'exploration
-    exploration = explorationsRepository.transformBD(exploration, explorer, ally);
+    //---Post de l'exploration---
+    exploration = explorationsRepository.transformBdExploration(exploration, explorer, ally);
     let newExploration = await explorationsRepository.create(exploration);
 
-    newExploration = newExploration.toObject({ getters: false, virtuals: false });
-    newExploration = explorationsRepository.transform(newExploration);
+    //---Update de l'explorateur---
+    explorer = explorationsRepository.transformBdExplorer(newExploration, explorer);
+    await explorersRepository.update(explorer.uuid, explorer);
 
-    //L'exploration est un succès patch la location de l'explorateur
-    explorer.location = newExploration.to;
-    explorersRepository.update(explorer.uuid, explorer);
+    //---Transformation des donnée pour le json retourné---
+    newExploration = newExploration.toObject({ getters: false, virtuals: false });
+    
+    //Create ne peu pas être populated donc on met le uuid manuelement
+    //Pour le href du transform
+    newExploration.explorer = { uuid: explorer.uuid };
+    if (ally) {
+      newExploration.ally = { uuid: ally.uuid };
+    }
+
+    newExploration = explorationsRepository.transform(newExploration);
 
     res.status(201).json(newExploration);
   } catch (err) {

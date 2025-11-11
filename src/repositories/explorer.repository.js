@@ -18,7 +18,7 @@ class ExplorerRepository {
 
     update(explorerUUID, explorer) {
       return Explorer.findOneAndUpdate(
-        { uuid:explorer }, 
+        { uuid:explorerUUID }, 
         { $set: Object.assign(explorer) }, 
         { runValidators: true, new: true }
       );
