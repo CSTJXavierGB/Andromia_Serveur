@@ -17,7 +17,7 @@ const guardRefreshTokenJWT = expressjwt({
         return req.body.refreshToken
     },
     isRevoked: (req) => {
-        return tokenRepository.isRevoked(req.body.token)
+        return tokenRepository.isRevoked(req.body.refreshToken)
     }
 });
 

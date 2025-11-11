@@ -32,6 +32,7 @@ async function retrieveOne(req, res, next) {
     }
 }
 
+// ROUTE TEMPORAIRE : Pour créer un allié lié à un explorateur existant ou non
 async function post(req, res, next) {
     const options = {
         explorer: true
