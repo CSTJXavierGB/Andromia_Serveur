@@ -61,7 +61,7 @@ class AllyRepository {
 
     update(allyUUID, ally) {
         return Ally.findOneAndUpdate(
-            { uuid:allyUUID }, 
+            { uuid: allyUUID }, 
             { $set: Object.assign(ally) }, 
             { runValidators: true, new: true }
         );

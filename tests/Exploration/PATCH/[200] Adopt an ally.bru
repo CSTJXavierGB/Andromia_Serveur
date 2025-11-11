@@ -5,7 +5,12 @@ meta {
 }
 
 patch {
-  url: 
+  url: {{base_url}}/explorations/b45607d0-2dec-49f3-8e99-9242b3c880d4/adopt
   body: none
   auth: inherit
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
 }

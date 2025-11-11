@@ -1,0 +1,15 @@
+meta {
+  name: [404] Adopt an ally bad uuid
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{base_url}}/explorations/f3b04ccb-176d-42cb-9e69-3600e33790/adopt
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}

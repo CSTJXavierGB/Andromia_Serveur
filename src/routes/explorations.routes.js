@@ -54,9 +54,15 @@ async function retrieveAllFromExplorer(req, res, next) {
 
 async function patch(req, res, next) {
   try {
-    const exploration = explorationsRepository.retrieveOne(req.params.uuid, { ally: true });
+    let exploration = await explorationsRepository.retrieveOne(req.params.uuid, { ally: true });
     if (!exploration) {
       return next(HttpError.NotFound(`L'exploration avec le uuid ${req.params.uuidExploration} n'existe pas.`));
+    }
+    exploration = exploration.toObject({ getters: false, virtuals: false });
+
+    //Vérification si l'exploration possède un ally
+    if (!exploration.ally) {
+      return next(HttpError.Forbidden("L'exploration ne possède pas d'allié à adopter"));
     }
     //Vérification du temps depuis la création de l'exploration
     const expireDate = dayjs(exploration.explorationDate)
@@ -66,9 +72,9 @@ async function patch(req, res, next) {
     }
 
     let ally = exploration.ally;
-    ally.explorer = exploration.explorer;
+    ally.explorer = exploration.explorer._id;
 
-    let newAlly = alliesRepository.update(ally.uuid, ally);
+    let newAlly = await alliesRepository.update(ally.uuid, ally);
 
     newAlly = newAlly.toObject({ getters: false, virtuals: false });
     newAlly = alliesRepository.transform(newAlly);
