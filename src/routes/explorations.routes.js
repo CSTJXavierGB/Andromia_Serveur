@@ -127,13 +127,6 @@ async function post(req, res, next) {
     //---Transformation des donnée pour le json retourné---
     newExploration = newExploration.toObject({ getters: false, virtuals: false });
     
-    //Create ne peu pas être populated donc on met le uuid manuelement
-    //Pour le href du transform
-    newExploration.explorer = { uuid: explorer.uuid };
-    if (ally) {
-      newExploration.ally = { uuid: ally.uuid };
-    }
-
     newExploration = explorationsRepository.transform(newExploration);
 
     res.status(201).json(newExploration);

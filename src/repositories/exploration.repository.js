@@ -6,7 +6,11 @@ import explorerRepository from "./explorer.repository.js";
 class ExplorationRepository {
 
     async create(exploration) {
-        return await Exploration.create(exploration);
+        const query = await Exploration.create(exploration);
+
+        this.#handlePopulateOption(query);
+
+        return query;
     }
 
     retrieveByCriteria(criteria, options) {
@@ -36,7 +40,7 @@ class ExplorationRepository {
         exploration.explorer = explorer._id;
         exploration.from = explorer.location;
         exploration.to = exploration.destination;
-        
+
         delete exploration.destination;
         delete exploration.affinity;
         

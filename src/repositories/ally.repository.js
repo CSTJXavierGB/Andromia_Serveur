@@ -1,17 +1,12 @@
 import Ally from '../models/ally.model.js';
+import explorerRepository from './explorer.repository.js';
 
 
 class AllyRepository {
     retrieveAll(options = {}) {
         const retrieveQuery = Ally.find();
 
-        if (!options) {
-            return retrieveQuery;
-        }
-
-        if (options.explorer) {
-            retrieveQuery.populate('explorer')
-        }
+        this.#handlePopulateOption(retrieveQuery, options);
 
         return retrieveQuery;
     }
@@ -19,13 +14,7 @@ class AllyRepository {
     retrieveByCriteria(criteria, options = {}) {
         const retrieveQuery = Ally.find(criteria);
 
-        if (!options) {
-            return retrieveQuery;
-        }
-
-        if (options.explorer) {
-            retrieveQuery.populate('explorer')
-        }
+        this.#handlePopulateOption(retrieveQuery, options);
 
         return retrieveQuery;
     }
@@ -33,13 +22,7 @@ class AllyRepository {
     retrieveByUUID(uuid, options = {}) {
         const retrieveQuery = Ally.findOne({ uuid });
 
-        if (!options) {
-            return retrieveQuery;
-        }
-
-        if (options.explorer) {
-            retrieveQuery.populate('explorer')
-        }
+        this.#handlePopulateOption(retrieveQuery, options);
 
         return retrieveQuery;
     }
@@ -52,9 +35,7 @@ class AllyRepository {
         const newAlly = await Ally.create(ally);
 
         // Populate explorer if it requested so transform can access the UUID
-        if (options.explorer) {
-            await newAlly.populate('explorer');
-        }
+        this.#handlePopulateOption(newAlly, options);
 
         return newAlly;
     }
@@ -68,29 +49,16 @@ class AllyRepository {
     }    
 
     transform(ally, options = {}) {
+        const explorer = ally.explorer;
+
         ally.href = `${process.env.BASE_URL}/allies/${ally.uuid}`;
 
-        // Always include explorer href
-        if (ally.explorer) {
-            if (ally.explorer.uuid) {
-                // Explorer is populated
-                const explorerHref = `${process.env.BASE_URL}/explorers/${ally.explorer.uuid}`;
+        // Possible qu'un allié n'ai pas d'explorateur assigné
+        if (explorer) {
+            ally.explorer = { href : `${process.env.BASE_URL}/explorers/${explorer.uuid}`};
 
-                if (options.explorer) {
-                    // Embed useful explorer data
-                    // TODO : define what data to embed
-                    ally.explorer = {
-                        href: explorerHref,
-                        username: ally.explorer.username,
-                    
-                    };
-                } else {
-                    // Only keep the href
-                    ally.explorer = explorerHref;
-                }
-            } else {
-                // Explorer is just an ObjectId, remove it
-                delete ally.explorer;
+            if (options.explorer) {
+                ally.explorer = explorerRepository.transform(explorer);
             }
         }
 
@@ -99,6 +67,16 @@ class AllyRepository {
         delete ally.__v;
 
         return ally;
+    }
+
+    //Fonction privé pour géré les populate de retrieve queries
+    #handlePopulateOption(query, options = {}) {
+        if (options.explorer) {
+            query.populate('explorer')
+        } else {
+            query.populate('explorer', 'uuid')
+        }
+        return query;
     }
 }
 
