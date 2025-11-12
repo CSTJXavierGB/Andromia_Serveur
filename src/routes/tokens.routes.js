@@ -15,11 +15,7 @@ router.post('/', guardRefreshTokenJWT, revokeAuthorization  , refresh);
 // router.delete('/',deleteToken)
 
 async function refresh(req, res, next) {
-
-    
-
     try {
-
         const tokens = explorerRepository.generateJWT(req.refresh.uuid)
         tokenRepository.invalidate(req.body.refreshToken)
 
@@ -29,13 +25,5 @@ async function refresh(req, res, next) {
     }
 }
 
-// async function deleteToken(req,res,next) {
-//     try {
-//         await explorerRepository.invalidateToken(req.body.token);
-//         res.status(204).end();
-//     } catch (err) {
-//         return next(err);
-//     }
-// }
 
 export default router;
