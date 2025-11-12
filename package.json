@@ -32,6 +32,7 @@
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
+    "node-cron": "^4.2.1",
     "parse-duration": "^2.1.4",
     "qrcode": "^1.5.4",
     "random": "^5.4.1",
