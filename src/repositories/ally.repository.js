@@ -41,11 +41,15 @@ class AllyRepository {
     }
 
     update(allyUUID, ally) {
-        return Ally.findOneAndUpdate(
+        const updateQuery = Ally.findOneAndUpdate(
             { uuid: allyUUID }, 
             { $set: Object.assign(ally) }, 
             { runValidators: true, new: true }
         );
+
+        this.#handlePopulateOption(updateQuery);
+
+        return updateQuery;
     }    
 
     transform(ally, options = {}) {

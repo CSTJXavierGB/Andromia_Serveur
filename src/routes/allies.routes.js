@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/:uuid', retrieveOne);
 router.post('/', validator, post);
 
+//Route non documenter mais nécessaire, pls ne pas supprimer ou changer le chemain
 async function retrieveOne(req, res, next) {
     const options = {};
 

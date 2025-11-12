@@ -5,9 +5,13 @@ meta {
 }
 
 patch {
-  url: {{base_url}}/explorations/b45607d0-2dec-49f3-8e99-9242b3c880d4/adopt
+  url: {{base_url}}/explorations/:explorationUUID/adopt
   body: none
   auth: inherit
+}
+
+params:path {
+  explorationUUID: 732c997b-9c48-48a8-8bf5-641941ac58ba
 }
 
 assert {
