@@ -17,12 +17,29 @@ class ExplorerRepository {
     }    
 
     update(explorerUUID, explorer) {
-      return Explorer.findOneAndUpdate(
-        { uuid:explorerUUID }, 
-        { $set: Object.assign(explorer) }, 
-        { runValidators: true, new: true }
-      );
+        const updateQuery = Explorer.findOneAndUpdate(
+            { uuid: explorerUUID }, 
+            { $set: Object.assign(explorer) }, 
+            { runValidators: true, new: true }
+        );
+
+        this.#handlePopulateOption(updateQuery);
+
+        return updateQuery;
     }
+
+    updateMany(update, filter = {}) {
+        const updateQuery = Explorer.updateMany(
+            filter,
+            { $set: update },
+            { runValidators: true, new: true }
+        );
+
+        this.#handlePopulateOption(updateQuery);
+
+        return updateQuery;
+    }
+
 
     async validatePassword(password, explorer) {
         return await argon.verify(explorer.password, password)
@@ -103,16 +120,16 @@ class ExplorerRepository {
     }
 
     //Fonction privé pour géré les populate de retrieve queries
-    #handlePopulateOption(query, options) {
-        if (!options) {
-            return query;
-        }
-        
+    #handlePopulateOption(query, options = {}) {        
         if (options.allies) {
-            retrieveQuery.populate('allies')
+            retrieveQuery.populate('allies');
+        } else {
+            retrieveQuery.populate('allies', 'uuid');
         }
         if (options.explorations) {
-            retrieveQuery.populate('explorations')
+            retrieveQuery.populate('explorations');
+        } else {
+            retrieveQuery.populate('explorations', 'uuid');
         }
 
         return query;
