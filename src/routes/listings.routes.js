@@ -7,17 +7,17 @@ import listingRepository from '../repositories/listing.repository.js';
 
 const router = express.Router();
 
-router.post('/', guardAuthorizationJWT, post);
+router.post('/allies/:allyUUID', guardAuthorizationJWT, post);
 
 async function post(req, res, next) {
     try {
 
-        const allyUUID = req.body.allyHref.split('/').pop();
+        const allyUUID = req.params.allyUUID;
         const explorerUuid = req.auth.uuid;
         const inox = req.body.inox;
         
 
-        let listing = await listingRepository.create(allyUUID,explorerUuid, inox);
+        let listing = await listingRepository.create(allyUUID, explorerUuid, inox);
 
         listing = listing.toObject({ getters: false, virtuals: false });
 

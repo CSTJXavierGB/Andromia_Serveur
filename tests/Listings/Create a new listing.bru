@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: {{base_url}}/listings?_body=true
+  url: {{base_url}}/listings?_body=false
   body: json
   auth: bearer
 }
 
 params:query {
-  _body: true
+  _body: false
 }
 
 auth:bearer {
