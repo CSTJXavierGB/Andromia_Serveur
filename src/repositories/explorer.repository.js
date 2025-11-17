@@ -28,14 +28,12 @@ class ExplorerRepository {
         return updateQuery;
     }
 
-    updateMany(update, filter = {}) {
-        const updateQuery = Explorer.updateMany(
+    async updateMany(update, filter = {}) {
+        const updateQuery = await Explorer.updateMany(
             filter,
-            { $set: update },
+            update,
             { runValidators: true, new: true }
         );
-
-        this.#handlePopulateOption(updateQuery);
 
         return updateQuery;
     }
@@ -122,14 +120,14 @@ class ExplorerRepository {
     //Fonction privé pour géré les populate de retrieve queries
     #handlePopulateOption(query, options = {}) {        
         if (options.allies) {
-            retrieveQuery.populate('allies');
+            query.populate('allies');
         } else {
-            retrieveQuery.populate('allies', 'uuid');
+            query.populate('allies', 'uuid');
         }
         if (options.explorations) {
-            retrieveQuery.populate('explorations');
+            query.populate('explorations');
         } else {
-            retrieveQuery.populate('explorations', 'uuid');
+            query.populate('explorations', 'uuid');
         }
 
         return query;
