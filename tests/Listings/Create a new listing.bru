@@ -1,0 +1,26 @@
+meta {
+  name: Create a new listing
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/listings?_body=true
+  body: json
+  auth: bearer
+}
+
+params:query {
+  _body: true
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMTQ2YTBiOTgtMDYzYS00NTc2LTkwZTQtZTQ1NmU3ZGU5M2EyIiwiaWF0IjoxNzYzNDE1ODkzLCJleHAiOjE3NjM0MTY0OTMsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCJ9.4BUXd0PG4_DKWgERyB_uOH8C0sjwP3z27ii0bIFCm8A
+}
+
+body:json {
+  {
+    "allyHref":"http://localhost:5000/allies/3783cb49-fb25-434b-ad01-1ac0e9a3aadc",
+    "inox":"120"
+  }
+}
