@@ -14,7 +14,14 @@ class ExplorerRepository {
         } catch (err) {
             throw new Error('Error hashing password');
         }
+    }    
 
+    update(explorerUUID, explorer) {
+      return Explorer.findOneAndUpdate(
+        { uuid:explorerUUID }, 
+        { $set: Object.assign(explorer) }, 
+        { runValidators: true, new: true }
+      );
     }
 
     async validatePassword(password, explorer) {
@@ -39,12 +46,20 @@ class ExplorerRepository {
     }
 
 
-    retrieveAll() {
-        return Explorer.find().populate('allies');
+    retrieveAll(options) {
+        const retrieveQuery = Explorer.find();
+        
+        this.#handlePopulateOption(retrieveQuery, options);
+
+        return retrieveQuery;
     }
 
-    retrieveOne(uuid) {
-        return Explorer.findOne({ uuid }).populate('allies');
+    retrieveOne(uuid, options) {
+        const retrieveQuery = Explorer.findOne({ uuid });
+
+        this.#handlePopulateOption(retrieveQuery, options);
+
+        return retrieveQuery;
     }
 
     retrieveByCredentials(username) {
@@ -87,6 +102,21 @@ class ExplorerRepository {
         return explorer;
     }
 
+    //Fonction privé pour géré les populate de retrieve queries
+    #handlePopulateOption(query, options) {
+        if (!options) {
+            return query;
+        }
+        
+        if (options.allies) {
+            retrieveQuery.populate('allies')
+        }
+        if (options.explorations) {
+            retrieveQuery.populate('explorations')
+        }
+
+        return query;
+    } 
 }
 
 export default new ExplorerRepository();

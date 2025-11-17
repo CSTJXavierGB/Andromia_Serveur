@@ -11,12 +11,12 @@ const explorerSchema = mongoose.Schema(
             elements: [
                 {
                     quantity: { type: Number, default: 0, min: 0 },
-                    element: { type: String, default: '' }
+                    element: { type: String, default: '' },
+                    _id: false
                 }
             ]
         },
         location: { type: String, default: '' }
-        // explorations : { type: Array, default: [] }
     },
     {
         collection: 'explorers',
@@ -31,14 +31,13 @@ explorerSchema.virtual('allies', {
     localField: '_id',
     foreignField: 'explorer',
     justOne: false
-})
-// TODO : add explorations virtual when Exploration model is created
-// explorerSchema.virtual('explorations', {
-//     ref: 'Exploration',
-//     localField: '_id',
-//     foreignField: 'explorer',
-//     justOne: false
-// })
+});
+explorerSchema.virtual('explorations', {
+    ref: 'Exploration',
+    localField: '_id',
+    foreignField: 'explorer',
+    justOne: false
+});
 
 const Explorer = mongoose.model('Explorer', explorerSchema);
 

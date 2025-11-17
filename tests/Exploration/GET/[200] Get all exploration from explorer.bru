@@ -1,0 +1,16 @@
+meta {
+  name: [200] Get all exploration from explorer
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/explorers/{{explorerUUID}}/explorations
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}

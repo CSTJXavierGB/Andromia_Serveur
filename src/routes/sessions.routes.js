@@ -6,12 +6,12 @@ import explorerRepository from '../repositories/explorer.repository.js';
 import TokenController from '../controllers/token.controller.js';
 const tokenController = new TokenController()
 
-import { guardAuthorizationJWT, revokeAuthorization } from '../middlewares/authorization.jwt.js';
+import { guardAuthorizationJWT, guardRefreshTokenJWT, revokeAuthorization } from '../middlewares/authorization.jwt.js';
 
 const router = express.Router();
 
 router.post('/', login);
-router.delete('/', guardAuthorizationJWT, revokeAuthorization, logout);
+router.delete('/', guardAuthorizationJWT, guardRefreshTokenJWT, revokeAuthorization, logout);
 
 async function login(req, res, next) {
     try {
@@ -36,8 +36,9 @@ async function login(req, res, next) {
 
 async function logout(req, res, next) {
     try {
-       await tokenController.invalidate(req.body.refreshToken)
-       res.status(204).end();
+        
+        await tokenController.invalidate(req.body.refreshToken);
+        res.status(204).end();
     } catch(err) {
         return next(err);
     } 

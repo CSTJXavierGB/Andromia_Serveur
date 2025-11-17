@@ -1,0 +1,21 @@
+meta {
+  name: [200] Get all exploration from explorer ally&explorer embed
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/explorers/{{explorerUUID}}/explorations?embed=ally&embed=explorer
+  body: none
+  auth: inherit
+}
+
+params:query {
+  embed: ally
+  embed: explorer
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}

@@ -1,0 +1,15 @@
+meta {
+  name: [404] Make an exploration bad key
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/explorers/{{explorerUUID}}/explorations/K@[5449:E5E3:98B6:0779:AC9]
+  body: none
+  auth: inherit
+}
+
+assert {
+  res.status: eq 404
+}
