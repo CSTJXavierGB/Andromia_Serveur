@@ -1,16 +1,45 @@
 import Listing from '../models/listing.model.js';
 import alliesRepository from './ally.repository.js';
 import explorerRepository from './explorer.repository.js';
+import HttpErrors from 'http-errors';
+
 
 
 class ListingRepository {
 
+
     async create(allyUUID, explorerUUID, inox) {
-        try {
+        
 
 
             let ally = await alliesRepository.retrieveByUUID(allyUUID);
+
+            if (!ally) {
+                throw HttpErrors.NotFound('Ally not found');
+            }
+
+            const isDuplicate = await Listing.findOne({ ally: ally._id});
+            if (isDuplicate) {
+                throw HttpErrors.Conflict('This ally is already listed for sale');
+            }
+
+
+
             let explorer = await explorerRepository.retrieveOne(explorerUUID);
+
+            if (!explorer) {
+                throw HttpErrors.NotFound('Explorer not found');
+            }
+
+
+
+            if (!ally.explorer) {
+                throw HttpErrors.BadRequest('Ally is not linked to any explorer');
+            }
+
+            if (!ally.explorer._id.equals(explorer._id)) {
+                throw HttpErrors.Forbidden('You do not own this ally');
+            }
 
             const listing = await Listing.create({
                 seller: explorer._id,
@@ -20,9 +49,7 @@ class ListingRepository {
 
             await this.#handlePopulateOption(listing);
             return listing;
-        } catch (err) {
-            throw new Error('Error creating listing: ' + err.message);
-        }
+       
     }
 
     transform(listing, options = {}) {
