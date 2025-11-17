@@ -8,6 +8,7 @@ import explorerRepository from '../repositories/explorer.repository.js';
 const router = express.Router();
 
 router.get('/:uuid', retrieveOne);
+router.get('/', retrieveAll); // Route de test pour récupérer tous les alliés
 router.post('/', validator, post);
 
 //Route non documenter mais nécessaire, pls ne pas supprimer ou changer le chemain
@@ -52,6 +53,21 @@ async function post(req, res, next) {
         newAlly = alliesRepository.transform(newAlly, options);
 
         res.status(201).json(newAlly);
+    } catch (err) {
+        return next(err);
+    }
+}
+
+
+async function retrieveAll(req, res, next) {
+    try {
+        let allies = await alliesRepository.retrieveAll();
+        allies = allies.map((ally) => {
+            ally = ally.toObject({ getters: false, virtuals: false });
+            ally = alliesRepository.transform(ally);
+            return ally;
+        });
+        res.status(200).json(allies);
     } catch (err) {
         return next(err);
     }
