@@ -1,0 +1,20 @@
+meta {
+  name: [200] Get exploration
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/explorations/:explorationUUID
+  body: none
+  auth: inherit
+}
+
+params:path {
+  explorationUUID: 5a462ef5-1161-4471-9b01-c8eb8fbc9fe7
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}

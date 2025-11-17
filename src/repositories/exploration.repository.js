@@ -94,11 +94,11 @@ class ExplorationRepository {
         const explorer = exploration.explorer;
         const ally = exploration.ally;
         
-        exploration.explorer = { href : `${process.env.BASE_URL}/explorer/${explorer.uuid}`};
+        exploration.explorer = { href : `${process.env.BASE_URL}/explorers/${explorer.uuid}`};
 
         //Il est possible qu'il n'y est aucun allié relier a l'exploration
         if (ally) {
-            exploration.ally = { href : `${process.env.BASE_URL}/ally/${ally.uuid}`};
+            exploration.ally = { href : `${process.env.BASE_URL}/allies/${ally.uuid}`};
 
             if (options.ally) {
                 exploration.ally = allyRepository.transform(ally);
@@ -109,7 +109,7 @@ class ExplorationRepository {
             exploration.explorer = explorerRepository.transform(explorer);
         }
 
-        exploration.href = `${process.env.BASE_URL}/exploration/${exploration.uuid}`;
+        exploration.href = `${process.env.BASE_URL}/explorations/${exploration.uuid}`;
 
         exploration.explorationDate = dayjs(exploration.explorationDate).format('YYYY-MM-DD');        
 

@@ -11,9 +11,38 @@ import alliesRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
 
+router.get('/explorations/:uuid', retrieveOne);
 router.get('/explorers/:uuid/explorations', retrieveAllFromExplorer);
 router.post('/explorers/:uuid/explorations/:key', post);
 router.patch('/explorations/:uuid/adopt', patch);
+
+async function retrieveOne(req, res, next) {
+  try {
+    let options = {};
+
+    if (req.query.embed) {
+      const embeds = req.query.embed;
+      if (embeds.includes("ally")) {
+        options.ally = true;
+      }
+      if (embeds.includes("explorer")) {
+        options.explorer = true;
+      }
+    }
+
+    let exploration = await explorationsRepository.retrieveOne(req.params.uuid, options);
+    if (!exploration) {
+      return next(HttpError.NotFound(`L'exploration avec le UUID "${req.params.uuid}" n'existe pas.`));
+    }
+
+    exploration = exploration.toObject({ getters: false, virtuals: false });
+    exploration = explorationsRepository.transform(exploration, options);
+
+    res.status(200).json(exploration);
+  } catch (err) {
+    next(err);
+  }
+}
 
 async function retrieveAllFromExplorer(req, res, next) {  
   try {
