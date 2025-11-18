@@ -76,9 +76,9 @@ class AllyRepository {
     //Fonction privé pour géré les populate de retrieve queries
     #handlePopulateOption(query, options = {}) {
         if (options.explorer) {
-            query.populate('explorer')
+            query.populate('explorer');
         } else {
-            query.populate('explorer', 'uuid')
+            query.populate('explorer', 'uuid');
         }
         return query;
     }

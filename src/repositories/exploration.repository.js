@@ -123,15 +123,15 @@ class ExplorationRepository {
     //Fonction privé pour géré les populate de retrieve queries
     #handlePopulateOption(query, options = {}) {        
         if (options.ally) {
-            query.populate('ally')
+            query.populate('ally');
         } else {
-            query.populate('ally', 'uuid')
+            query.populate('ally', 'uuid');
         }
 
         if (options.explorer) {
-            query.populate('explorer')
+            query.populate('explorer');
         } else {
-            query.populate('explorer', 'uuid')
+            query.populate('explorer', 'uuid');
         }
         return query;
     } 

@@ -3,6 +3,7 @@ import HttpError from 'http-errors';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
+import { EXPLORATION_EXPIRE_MINUTE } from '../core/constants.js';
 import validator from '../middlewares/validator.js';
 
 import explorationsRepository from '../repositories/exploration.repository.js';
@@ -95,7 +96,7 @@ async function patch(req, res, next) {
     }
     //Vérification du temps depuis la création de l'exploration
     const expireDate = dayjs(exploration.explorationDate)
-      .add(process.env.EXPLORATION_EXPIRE_MINUTE, 'minute');
+      .add(EXPLORATION_EXPIRE_MINUTE, 'minute');
     if (dayjs().isAfter(expireDate)) {
       return next(HttpError.Forbidden("La période de temps pour adopter L'allié s'est expiré."));
     }
