@@ -1,10 +1,11 @@
 import express from 'express';
 import paginate, { hasNextPages } from 'express-paginate';
-import HttpError from 'http-errors';
+import HttpErrors from 'http-errors';
 
 import { generateMetaDataLinks } from '../core/paginationHandler.js';
 import { handlePageURLParam } from '../middlewares/page.value.middleware.js';
 import { PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT, PAGE_LINKS_NUMBER } from '../core/constants.js';
+import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
 
 import listingRepository from '../repositories/listing.repository.js';
 
@@ -52,10 +53,10 @@ async function retieveAll(req, res, next) {
 
         let [listings, totalDocuments] = await listingRepository.retrieveByCriteria(filter, options);
 
-        let responseBody = generateMetaDataLinks(totalDocuments, req.query.page, req.query.skip, req.query.limit);
+        let responseBody = generateMetaDataLinks(totalDocuments, parseInt(req.query.page) || 1, req.skip, parseInt(req.query.limit) || 10, req);
         responseBody.data = listings.map((l) => {
             l = l.toObject({ getters: false, virtuals: false });
-            l = explorationsRepository.transform(l, options);
+            l = listingRepository.transform(l, options);
             return l;
         });
 

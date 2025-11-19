@@ -9,45 +9,39 @@ import HttpErrors from 'http-errors';
 class ListingRepository {
 
     async retrieveByUUID(uuid) {
-        const listing = await Listing.findOne({ uuid });
-        if (listing) {
-            await this.#handlePopulateOption(listing);
-        }
-        return listing;
-    }
-
-    async retrieveByCriteria(filter) {
-
-        const listings = await Listing.find(filter);
-         
-
-        for (let i = 0; i < listings.length; i++) {
-            await this.#handlePopulateOption(listings[i]);
-        }
-
-        return listings;
-
+        const query = Listing.findOne({ uuid });
+        this.#handlePopulateOption(query);
+        return await query;
     }
 
 
     async create(allyUUID, explorerUUID, inox) {
-        
+        let ally = await alliesRepository.retrieveByUUID(allyUUID);
 
+        if (!ally) {
+            throw HttpErrors.NotFound('Ally not found');
+        }
 
-            let ally = await alliesRepository.retrieveByUUID(allyUUID);
+        const isDuplicate = await Listing.findOne({ ally: ally._id });
+        if (isDuplicate) {
+            throw HttpErrors.Conflict('This ally is already listed for sale');
+        }
 
-            if (!ally) {
-                throw HttpErrors.NotFound('Ally not found');
-            }
+        let explorer = await explorerRepository.retrieveOne(explorerUUID);
 
-            const isDuplicate = await Listing.findOne({ ally: ally._id});
-            if (isDuplicate) {
-                throw HttpErrors.Conflict('This ally is already listed for sale');
-            }
+        if (!explorer) {
+            throw HttpErrors.NotFound('Explorer not found');
+        }
 
+        const listing = await Listing.create({
+            ally: ally._id,
+            seller: explorer._id,
+            inox: inox
+        });
 
+        return listing;
+    }
 
-            let explorer = await explorerRepository.retrieveOne(explorerUUID);
     retrieveByCriteria(filter, options) {
         const limit = options.limit;
         const skip = options.skip;
@@ -79,19 +73,25 @@ class ListingRepository {
             }
         }
 
-        listing.seller = { href: `${process.env.BASE_URL}/explorers/${seller.uuid}` };
-        if (options.seller) {
-            listing.seller = explorerRepository.transform(seller);
+        if (seller) {
+            listing.seller = { href: `${process.env.BASE_URL}/explorers/${seller.uuid}` };
+            if (options.seller) {
+                listing.seller = explorerRepository.transform(seller);
+            }
         }
 
-        listing.ally = { href: `${process.env.BASE_URL}/allies/${ally.uuid}` };
-        if (options.ally) {
-            listing.ally = allyRepository.transform(ally);
+        if (ally) {
+            listing.ally = { href: `${process.env.BASE_URL}/allies/${ally.uuid}` };
+            if (options.ally) {
+                listing.ally = alliesRepository.transform(ally);
+            }
         }
 
         listing.href = `${process.env.BASE_URL}/listings/${listing.uuid}`;
 
-        listing.completedAt = dayjs(listing.completedAt).format('YYYY-MM-DD');
+        if (listing.completedAt) {
+            listing.completedAt = dayjs(listing.completedAt).format('YYYY-MM-DD');
+        }
         listing.createdAt = dayjs(listing.createdAt).format('YYYY-MM-DD');
 
         delete listing._id;
