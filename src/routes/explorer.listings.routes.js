@@ -8,7 +8,7 @@ import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
 
 const router = express.Router();
 
-router.get('/explorers/:explorerUUID/listings', guardAuthorizationJWT, getAllListingsByExplorerUUID);
+router.get('/:explorerUUID/listings', guardAuthorizationJWT, getAllListingsByExplorerUUID);
 
 
 

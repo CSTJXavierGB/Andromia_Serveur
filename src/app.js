@@ -32,7 +32,7 @@ app.use(explorationRoutes);
 app.use('/sessions', sessionsRoutes);
 app.use('/listings', listingsRoutes);
 app.use('/tokens', tokensRoutes);
-app.use(explorerListingsRoutes);
+app.use('/explorers', explorerListingsRoutes);
 
 app.use(errors);
 
