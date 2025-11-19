@@ -19,17 +19,7 @@ router.patch('/explorations/:uuid/adopt', patch);
 
 async function retrieveOne(req, res, next) {
   try {
-    let options = {};
-
-    if (req.query.embed) {
-      const embeds = req.query.embed;
-      if (embeds.includes("ally")) {
-        options.ally = true;
-      }
-      if (embeds.includes("explorer")) {
-        options.explorer = true;
-      }
-    }
+    let options = assignEmbedOptions(req.query.embed);
 
     let exploration = await explorationsRepository.retrieveOne(req.params.uuid, options);
     if (!exploration) {
@@ -47,17 +37,7 @@ async function retrieveOne(req, res, next) {
 
 async function retrieveAllFromExplorer(req, res, next) {  
   try {
-    let options = {};
-
-    if (req.query.embed) {
-      const embeds = req.query.embed;
-      if (embeds.includes("ally")) {
-        options.ally = true;
-      }
-      if (embeds.includes("explorer")) {
-        options.explorer = true;
-      }
-    }
+    let options = assignEmbedOptions(req.query.embed);
 
     //Get l'explorer pour son id
     let explorer = await explorersRepository.retrieveOne(req.params.uuid);
@@ -163,6 +143,20 @@ async function post(req, res, next) {
   } catch (err) {
     return next(err);
   }
+}
+
+function assignEmbedOptions(reqEmbeds) {
+    let options = {};
+
+    if (reqEmbeds) {
+      if (reqEmbeds.includes("ally")) {
+        options.ally = true;
+      }
+      if (reqEmbeds.includes("explorer")) {
+        options.explorer = true;
+      }
+    }
+    return options;
 }
 
 export default router;
