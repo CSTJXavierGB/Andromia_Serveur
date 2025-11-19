@@ -10,6 +10,7 @@ import explorationRoutes from './routes/explorations.routes.js'
 import sessionsRoutes from './routes/sessions.routes.js';
 import tokensRoutes from './routes/tokens.routes.js';
 import listingsRoutes from './routes/listings.routes.js';
+import explorerListingsRoutes from './routes/explorer.listings.routes.js';
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(explorationRoutes);
 app.use('/sessions', sessionsRoutes);
 app.use('/listings', listingsRoutes);
 app.use('/tokens', tokensRoutes);
+app.use('/explorers', explorerListingsRoutes);
 
 app.use(errors);
 
