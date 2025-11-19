@@ -2,6 +2,7 @@ import express from 'express';
 import paginate, { hasNextPages } from 'express-paginate';
 import HttpError from 'http-errors';
 
+import { generateMetaDataLinks } from '../core/paginationHandler.js';
 import { handlePageURLParam } from '../middlewares/page.value.middleware.js';
 import { PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT, PAGE_LINKS_NUMBER } from '../core/constants.js';
 
@@ -29,29 +30,16 @@ async function retieveAll(req, res, next) {
             }
         }
 
-        let responseBody = {};
-
         let [listings, totalDocuments] = await listingRepository.retrieveByCriteria(filter, options);
-        listings = listings.map((l) => {
+
+        let responseBody = generateMetaDataLinks(totalDocuments, req.query.page, req.query.skip, req.query.limit);
+        responseBody.data = listings.map((l) => {
             l = l.toObject({ getters: false, virtuals: false });
             l = explorationsRepository.transform(l, options);
             return l;
         });
 
-        //TODO: this whole chunk could be a function used for multiple diffrent routes, figure it out
-        const totalPages = Math.ceil(totalDocuments / req.query.limit);
-        const pageLinksFunction = paginate.getArrayPages(req);
-        let pageLinks = pageLinksFunction(PAGE_LINKS_NUMBER, totalPages, req.query.page);
-
-        responseBody._metadata = {
-            hasNextPage: req.query.page < totalPages,
-            page: req.query.page,
-            limit: req.query.limit,
-            skip: req.query.skip,
-            totalPages: totalPages,
-            totalDocuments: totalDocuments,
-        };
-        responseBody._links = {};
+        res.status(200).json(responseBody);
 
     } catch (err) {
         next(err);
@@ -74,3 +62,5 @@ function assignEmbedOptions(reqEmbeds) {
     }
     return options;
 }
+
+export default router;
