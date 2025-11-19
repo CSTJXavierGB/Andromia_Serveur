@@ -7,6 +7,7 @@ import listingRepository from '../repositories/listing.repository.js';
 
 const router = express.Router();
 
+
 router.post('/allies/:allyUUID', guardAuthorizationJWT, post);
 
 async function post(req, res, next) {
@@ -35,6 +36,8 @@ async function post(req, res, next) {
         return next(err);
     }
 }
+
+
 
 
 

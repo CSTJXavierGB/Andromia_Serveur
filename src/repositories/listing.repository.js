@@ -7,6 +7,19 @@ import HttpErrors from 'http-errors';
 
 class ListingRepository {
 
+    async retrieveByCriteria(filter) {
+
+        const listings = await Listing.find(filter);
+         
+
+        for (let i = 0; i < listings.length; i++) {
+            await this.#handlePopulateOption(listings[i]);
+        }
+
+        return listings;
+
+    }
+
 
     async create(allyUUID, explorerUUID, inox) {
         
