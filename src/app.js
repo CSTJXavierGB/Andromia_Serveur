@@ -10,13 +10,16 @@ import explorationRoutes from './routes/explorations.routes.js'
 import sessionsRoutes from './routes/sessions.routes.js';
 import tokensRoutes from './routes/tokens.routes.js';
 import listingsRoutes from './routes/listings.routes.js';
+import methodOverride from 'method-override';
 
 const app = express();
 
 database();
 
+
 app.use(cors());
 app.use(express.json());
+app.use(methodOverride('X-HTTP-Method-Override'))
 
 app.get('/status', (req, res) => {
     res.status(200).end();
