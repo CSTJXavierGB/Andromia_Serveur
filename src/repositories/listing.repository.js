@@ -7,6 +7,14 @@ import HttpErrors from 'http-errors';
 
 class ListingRepository {
 
+    async retrieveByUUID(uuid) {
+        const listing = await Listing.findOne({ uuid });
+        if (listing) {
+            await this.#handlePopulateOption(listing);
+        }
+        return listing;
+    }
+
     async retrieveByCriteria(filter) {
 
         const listings = await Listing.find(filter);

@@ -1,0 +1,15 @@
+meta {
+  name: Retrieve one listing by uuid
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/listings/:uuidListing
+  body: none
+  auth: inherit
+}
+
+params:path {
+  uuidListing: f633c3b3-67eb-4b5b-b1b4-c764fc038e1f
+}

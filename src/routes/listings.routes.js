@@ -7,8 +7,26 @@ import listingRepository from '../repositories/listing.repository.js';
 
 const router = express.Router();
 
-
+router.get('/:listingUUID', retrieveOne);
 router.post('/allies/:allyUUID', guardAuthorizationJWT, post);
+
+
+async function retrieveOne(req, res, next) {
+    try {
+        const listingUUID = req.params.listingUUID;
+        var listing = await listingRepository.retrieveByUUID(listingUUID);
+        if (!listing) {
+            throw HttpErrors.NotFound('Listing not found');
+        }
+
+        listing = listing.toObject({ getters: false, virtuals: false });
+        listing = listingRepository.transform(listing);
+
+        res.status(200).json({ listing });
+    } catch (err) {
+        return next(err);
+    }
+}
 
 async function post(req, res, next) {
     try {
