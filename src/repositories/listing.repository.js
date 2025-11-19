@@ -7,14 +7,10 @@ import HttpErrors from 'http-errors';
 
 class ListingRepository {
 
-    async retrieveAllByExplorerUUID(explorerUUID) {
-        let explorer = await explorerRepository.retrieveOne(explorerUUID);
+    async retrieveByCriteria(filter) {
 
-        if (!explorer) {
-            throw HttpErrors.NotFound('Explorer not found');
-        }
-
-        const listings = await Listing.find({ seller: explorer._id });
+        const listings = await Listing.find(filter);
+         
 
         for (let i = 0; i < listings.length; i++) {
             await this.#handlePopulateOption(listings[i]);
