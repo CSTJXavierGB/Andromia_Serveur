@@ -1,7 +1,10 @@
 import dayjs from 'dayjs';
 import Listing from '../models/listing.model.js';
-import allyRepository from './ally.repository.js';
+import alliesRepository from './ally.repository.js';
 import explorerRepository from './explorer.repository.js';
+import HttpErrors from 'http-errors';
+
+
 
 class ListingRepository {
     retrieveByCriteria(filter, options) {

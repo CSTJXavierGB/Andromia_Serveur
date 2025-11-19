@@ -19,6 +19,8 @@ class AllyRepository {
         return retrieveQuery;
     }
 
+    
+
     retrieveByUUID(uuid, options = {}) {
         const retrieveQuery = Ally.findOne({ uuid });
 
