@@ -3,6 +3,7 @@ import HttpError from 'http-errors';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
+import { EXPLORATION_EXPIRE_MINUTE } from '../core/constants.js';
 import validator from '../middlewares/validator.js';
 
 import explorationsRepository from '../repositories/exploration.repository.js';
@@ -11,23 +12,32 @@ import alliesRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
 
+router.get('/explorations/:uuid', retrieveOne);
 router.get('/explorers/:uuid/explorations', retrieveAllFromExplorer);
 router.post('/explorers/:uuid/explorations/:key', post);
 router.patch('/explorations/:uuid/adopt', patch);
 
+async function retrieveOne(req, res, next) {
+  try {
+    let options = assignEmbedOptions(req.query.embed);
+
+    let exploration = await explorationsRepository.retrieveOne(req.params.uuid, options);
+    if (!exploration) {
+      return next(HttpError.NotFound(`L'exploration avec le UUID "${req.params.uuid}" n'existe pas.`));
+    }
+
+    exploration = exploration.toObject({ getters: false, virtuals: false });
+    exploration = explorationsRepository.transform(exploration, options);
+
+    res.status(200).json(exploration);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function retrieveAllFromExplorer(req, res, next) {  
   try {
-    let options = {};
-
-    if (req.query.embed) {
-      const embeds = req.query.embed;
-      if (embeds.includes("ally")) {
-        options.ally = true;
-      }
-      if (embeds.includes("explorer")) {
-        options.explorer = true;
-      }
-    }
+    let options = assignEmbedOptions(req.query.embed);
 
     //Get l'explorer pour son id
     let explorer = await explorersRepository.retrieveOne(req.params.uuid);
@@ -66,7 +76,7 @@ async function patch(req, res, next) {
     }
     //Vérification du temps depuis la création de l'exploration
     const expireDate = dayjs(exploration.explorationDate)
-      .add(process.env.EXPLORATION_EXPIRE_MINUTE, 'minute');
+      .add(EXPLORATION_EXPIRE_MINUTE, 'minute');
     if (dayjs().isAfter(expireDate)) {
       return next(HttpError.Forbidden("La période de temps pour adopter L'allié s'est expiré."));
     }
@@ -133,6 +143,20 @@ async function post(req, res, next) {
   } catch (err) {
     return next(err);
   }
+}
+
+function assignEmbedOptions(reqEmbeds) {
+    let options = {};
+
+    if (reqEmbeds) {
+      if (reqEmbeds.includes("ally")) {
+        options.ally = true;
+      }
+      if (reqEmbeds.includes("explorer")) {
+        options.explorer = true;
+      }
+    }
+    return options;
 }
 
 export default router;
