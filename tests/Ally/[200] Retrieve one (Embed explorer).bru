@@ -5,11 +5,15 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/allies/a758cb2a-003b-4841-83e3-b984acf557e1?embed=explorer
+  url: {{base_url}}/allies/:uuid?embed=explorer
   body: none
   auth: inherit
 }
 
 params:query {
   embed: explorer
+}
+
+params:path {
+  uuid: a6ae6c48-fa32-4d0d-a6ab-3ed12728f499
 }

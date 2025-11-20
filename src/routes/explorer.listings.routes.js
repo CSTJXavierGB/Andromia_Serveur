@@ -47,7 +47,12 @@ async function getAllListingsByExplorerUUID(req, res, next) {
 
         }
 
-        var listings = await listingRepository.retrieveByCriteria(filter);
+        let options = {
+            limit: 100,
+            skip: 0
+        };
+
+        let [listings, totalDocuments] = await listingRepository.retrieveByCriteria(filter, options);
 
         if (!listings || listings.length === 0) {
             return res.status(204).end();
@@ -55,7 +60,7 @@ async function getAllListingsByExplorerUUID(req, res, next) {
 
        listings = listings.map(listing => {
               listing = listing.toObject({ getters: false, virtuals: false });
-              listingRepository.transform(listing);
+              listing = listingRepository.transform(listing);
               return listing;
        });
 

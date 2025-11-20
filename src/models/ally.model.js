@@ -12,28 +12,28 @@ const allySchema = mongoose.Schema(
         name: { type: String, required: true },
         asset: { type: String },
         affinity: { type: String, required: true },
-        kernel : [ { type: String } ],
-        stats: { 
-            life: { type: Number},
+        kernel: [{ type: String }],
+        stats: {
+            life: { type: Number },
             speed: {
                 low: { type: Number },
-                high: { type: Number },
+                high: { type: Number }
             },
             power: {
                 low: { type: Number },
-                high: { type: Number },
+                high: { type: Number }
             },
             shield: {
                 low: { type: Number },
-                high: { type: Number },
+                high: { type: Number }
             }
-        },
-        
+        }
     },
     {
         collection: 'allies',
         strict: 'throw',
-        timestamps: true
+        timestamps: true,
+        id: false
     }
 );
 

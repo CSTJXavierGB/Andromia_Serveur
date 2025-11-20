@@ -5,7 +5,11 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/allies/abd6b29a-513b-4ad6-b0ef-b6599577503a
+  url: {{base_url}}/allies/:uuid
   body: none
   auth: inherit
+}
+
+params:path {
+  uuid: a6ae6c48-fa32-4d0d-a6ab-3ed12728f499
 }

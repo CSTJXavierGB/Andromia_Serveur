@@ -6,15 +6,14 @@ import ExplorerRepository from '../repositories/explorer.repository.js';
 import ExplorationsRoutes from './explorations.routes.js';
 
 import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
+import allyRepository from '../repositories/ally.repository.js';
 
 const router = express.Router();
 
 router.post('/', post);
-// TODO : Remove route, only for testing purposes
-// router.get('/', retrieveAll);
 router.get('/:uuid', guardAuthorizationJWT, retrieveOne);
-router.get('/:uuid/elements', guardAuthorizationJWT, retrieveOne);
-router.get('/:uuid/allies', guardAuthorizationJWT, retrieveOne);
+router.get('/:uuid/elements', guardAuthorizationJWT, retrieveElements);
+router.get('/:uuid/allies', guardAuthorizationJWT, retrieveExplorersAllies);
 
 async function post(req, res, next) {
     try {
@@ -28,10 +27,36 @@ async function post(req, res, next) {
         return next(err);
     }
 }
-/*
+
+async function retrieveExplorersAllies(req, res, next) {
+    try {
+        //Check if the logged in explorer is the same as the one being retrieved
+        const explorerUuid = req.auth.uuid;
+        if (explorerUuid !== req.params.uuid) {
+            return next(HttpErrors.Forbidden());
+        }
+        let explorer = await ExplorerRepository.retrieveOne(explorerUuid, { allies: true });
+        if (!explorer) {
+            return next(HttpErrors.NotFound());
+        } else {
+            explorer = explorer.toObject({ getters: false, virtuals: true });
+            explorer = ExplorerRepository.transform(explorer);
+
+            explorer.allies = explorer.allies.map(ally => {
+                ally = allyRepository.transform(ally);
+                return ally;
+            });
+
+            res.status(200).json(explorer.allies);
+        }
+    } catch (err) {
+        return next(err);
+    }
+}
+
 async function retrieveElements(req, res, next) {
     try {
-        // Check if the logged in explorer is the same as the one being retrieved
+        //Check if the logged in explorer is the same as the one being retrieved
         const explorerUuid = req.auth.uuid;
         if (explorerUuid !== req.params.uuid) {
             return next(HttpErrors.Forbidden());
@@ -48,54 +73,39 @@ async function retrieveElements(req, res, next) {
         return next(err);
     }
 }
-*/
+
 async function retrieveOne(req, res, next) {
     try {
-        let path = req.path.split('/')[2];
-        let options = {};
-        if (path === "allies") {
-            options.allies = true;
-        } else if (path === "elements") {
-            options.elements = true;
-        } 
-
+        var options = {};
         // Check if the logged in explorer is the same as the one being retrieved
         const explorerUuid = req.auth.uuid;
         if (explorerUuid !== req.params.uuid) {
             return next(HttpErrors.Forbidden());
         }
 
+        if (req.query.embed && req.query.embed === 'allies') {
+            options.allies = true;
+        }
+
         let explorer = await ExplorerRepository.retrieveOne(explorerUuid, options);
         if (!explorer) {
             return next(HttpErrors.NotFound());
         }
-        explorer = explorer.toObject({ getters: false, virtuals: false });
-        let responseData = ExplorerRepository.transform(explorer, options);
+
+        explorer = explorer.toObject({ getters: false, virtuals: true });
+        explorer = ExplorerRepository.transform(explorer, options);
+
         if (options.allies) {
-            responseData = responseData.allies;
-        } else if (options.elements) {
-            responseData = responseData.vault.elements;
+            explorer.allies = explorer.allies.map(ally => {
+                ally = allyRepository.transform(ally);
+                return ally;
+            });
         }
-        
-        res.status(200).json(responseData);
+
+        res.status(200).json(explorer);
     } catch (err) {
         return next(err);
     }
 }
-
-// TODO : Remove route, only for testing purposes
-// async function retrieveAll(req, res, next) {
-//     try {
-//         let explorers = await ExplorerRepository.retrieveAll();
-//         explorers = explorers.map((explorer) => {
-//             explorer = explorer.toObject({getters:false, virtuals:false});
-//             explorer = ExplorerRepository.transform(explorer);
-//             return explorer;
-//         });
-//         res.status(200).json(explorers);
-//     } catch (err) {
-//         return next(err);
-//     }
-// }
 
 export default router;
