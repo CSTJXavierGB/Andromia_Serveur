@@ -1,0 +1,25 @@
+meta {
+  name: [200] Get exploration ally&explorer embed
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/explorations/:explorationUUID?embed=ally&embed=explorer
+  body: none
+  auth: inherit
+}
+
+params:query {
+  embed: ally
+  embed: explorer
+}
+
+params:path {
+  explorationUUID: 5a462ef5-1161-4471-9b01-c8eb8fbc9fe7
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}

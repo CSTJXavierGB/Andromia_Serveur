@@ -4,51 +4,52 @@ import parseDuration from 'parse-duration';
 
 import argon from 'argon2';
 import HttpErrors from 'http-errors';
+import { de } from '@faker-js/faker';
 
 class ExplorerRepository {
     async create(explorer) {
-
         try {
             explorer.password = await argon.hash(explorer.password);
             return Explorer.create(explorer);
         } catch (err) {
             throw new Error('Error hashing password');
         }
-    }    
+    }
 
     update(explorerUUID, explorer) {
-      return Explorer.findOneAndUpdate(
-        { uuid:explorerUUID }, 
-        { $set: Object.assign(explorer) }, 
-        { runValidators: true, new: true }
-      );
+        const updateQuery = Explorer.findOneAndUpdate({ uuid: explorerUUID }, { $set: Object.assign(explorer) }, { runValidators: true, new: true });
+
+        this.#handlePopulateOption(updateQuery);
+
+        return updateQuery;
+    }
+
+    async updateMany(update, filter = {}) {
+        const updateQuery = await Explorer.updateMany(filter, update, { runValidators: true, new: true });
+
+        return updateQuery;
     }
 
     async validatePassword(password, explorer) {
-        return await argon.verify(explorer.password, password)
+        return await argon.verify(explorer.password, password);
     }
 
     async login(username, password) {
         const explorer = await this.retrieveByCredentials(username);
-        if (!explorer){
-
+        if (!explorer) {
             throw HttpErrors.Unauthorized();
+        }
 
-        } 
-
-        if(!await this.validatePassword(password, explorer)){
+        if (!(await this.validatePassword(password, explorer))) {
             throw HttpErrors.Unauthorized();
         }
 
         return explorer;
-
-
     }
-
 
     retrieveAll(options) {
         const retrieveQuery = Explorer.find();
-        
+
         this.#handlePopulateOption(retrieveQuery, options);
 
         return retrieveQuery;
@@ -67,27 +68,20 @@ class ExplorerRepository {
     }
 
     generateJWT(uuid) {
-        const access = jwt.sign(
-            {uuid: uuid},
-            process.env.JWT_TOKEN_SECRET,
-            {
-                expiresIn : process.env.JWT_TOKEN_LIFE,
-                issuer : process.env.BASE_URL
-            });
-        const refresh = jwt.sign(
-            {uuid:uuid},
-            process.env.JWT_REFRESH_SECRET,
-            {
-                expiresIn : process.env.JWT_REFRESH_LIFE,
-                issuer : process.env.BASE_URL
-            }
-        );
-        const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE)
-        return {access,refresh, expiresIn};
+        const access = jwt.sign({ uuid: uuid }, process.env.JWT_TOKEN_SECRET, {
+            expiresIn: process.env.JWT_TOKEN_LIFE,
+            issuer: process.env.BASE_URL
+        });
+        const refresh = jwt.sign({ uuid: uuid }, process.env.JWT_REFRESH_SECRET, {
+            expiresIn: process.env.JWT_REFRESH_LIFE,
+            issuer: process.env.BASE_URL
+        });
+        const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE);
+        return { access, refresh, expiresIn };
     }
 
-    transform(explorer) {
-        explorer.href = `${process.env.BASE_URL}/explorers/${explorer.uuid}`;        
+    transform(explorer, options = {}) {
+        explorer.href = `${process.env.BASE_URL}/explorers/${explorer.uuid}`;
 
         delete explorer.password;
         if (explorer.vault && explorer.vault.elements) {
@@ -95,6 +89,16 @@ class ExplorerRepository {
                 delete element._id;
             });
         }
+
+        // if (options.allies && explorer.allies) {
+        //     explorer.allies.forEach(ally => {
+        //         ally.href = `${process.env.BASE_URL}/allies/${ally.uuid}`;
+        //         delete ally._id;
+        //         delete ally.__v;
+        //         delete ally.uuid;
+        //     });
+        // }
+
         delete explorer.uuid;
         delete explorer._id;
         delete explorer.__v;
@@ -103,20 +107,26 @@ class ExplorerRepository {
     }
 
     //Fonction privé pour géré les populate de retrieve queries
-    #handlePopulateOption(query, options) {
-        if (!options) {
-            return query;
-        }
-        
+    #handlePopulateOption(query, options = {}) {
         if (options.allies) {
-            retrieveQuery.populate('allies')
+            query.populate({
+                path: 'allies',
+                populate: {
+                    path: 'explorer',
+                    select: 'uuid'
+                }
+            });
+        } else {
+            query.populate('allies', 'uuid');
         }
         if (options.explorations) {
-            retrieveQuery.populate('explorations')
+            query.populate('explorations');
+        } else {
+            query.populate('explorations', 'uuid');
         }
 
         return query;
-    } 
+    }
 }
 
 export default new ExplorerRepository();

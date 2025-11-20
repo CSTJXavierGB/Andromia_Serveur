@@ -1,21 +1,17 @@
 meta {
-  name: Retrieve all listings by explorer
+  name: [200] - Retrieve explorer allies
   type: http
-  seq: 2
+  seq: 5
 }
 
 get {
-  url: {{base_url}}/explorers/:uuidExplorer/listings?type=selling
+  url: {{base_url}}/explorers/:uuid/allies
   body: none
   auth: bearer
 }
 
-params:query {
-  type: selling
-}
-
 params:path {
-  uuidExplorer: 09f64eda-9685-49b7-b19f-d641c3a474c8
+  uuid: 09f64eda-9685-49b7-b19f-d641c3a474c8
 }
 
 auth:bearer {
