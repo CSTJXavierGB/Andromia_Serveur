@@ -79,14 +79,18 @@ class ListingRepository {
             }
         }
 
-        listing.seller = { href: `${process.env.BASE_URL}/explorers/${seller.uuid}` };
-        if (options.seller) {
-            listing.seller = explorerRepository.transform(seller);
+        if (seller) {
+            listing.seller = { href: `${process.env.BASE_URL}/explorers/${seller.uuid}` };
+            if (options.seller) {
+                listing.seller = explorerRepository.transform(seller);
+            }
         }
 
-        listing.ally = { href: `${process.env.BASE_URL}/allies/${ally.uuid}` };
-        if (options.ally) {
-            listing.ally = allyRepository.transform(ally);
+        if (ally) {
+            listing.ally = { href: `${process.env.BASE_URL}/allies/${ally.uuid}` };
+            if (options.ally) {
+                listing.ally = allyRepository.transform(ally);
+            }
         }
 
         listing.href = `${process.env.BASE_URL}/listings/${listing.uuid}`;

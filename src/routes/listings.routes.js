@@ -52,10 +52,10 @@ async function retrieveAll(req, res, next) {
 
         let [listings, totalDocuments] = await listingRepository.retrieveByCriteria(filter, options);
 
-        let responseBody = generateMetaDataLinks(totalDocuments, req.query.page, req.query.skip, req.query.limit);
+        let responseBody = generateMetaDataLinks(totalDocuments, req.query.page, req.query.skip, req.query.limit, req);
         responseBody.data = listings.map(l => {
             l = l.toObject({ getters: false, virtuals: false });
-            l = explorationsRepository.transform(l, options);
+            l = listingRepository.transform(l, options);
             return l;
         });
 
