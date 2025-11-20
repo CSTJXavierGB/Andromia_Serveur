@@ -3,6 +3,8 @@ import HttpErrors from 'http-errors';
 
 import ExplorerRepository from '../repositories/explorer.repository.js';
 
+import ExplorationsRoutes from './explorations.routes.js';
+
 import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
 
 const router = express.Router();
@@ -11,7 +13,8 @@ router.post('/', post);
 // TODO : Remove route, only for testing purposes
 // router.get('/', retrieveAll);
 router.get('/:uuid', guardAuthorizationJWT, retrieveOne);
-router.get('/:uuid/elements', guardAuthorizationJWT, retrieveElements);
+router.get('/:uuid/elements', guardAuthorizationJWT, retrieveOne);
+router.get('/:uuid/allies', guardAuthorizationJWT, retrieveOne);
 
 async function post(req, res, next) {
     try {
@@ -25,7 +28,7 @@ async function post(req, res, next) {
         return next(err);
     }
 }
-
+/*
 async function retrieveElements(req, res, next) {
     try {
         // Check if the logged in explorer is the same as the one being retrieved
@@ -45,23 +48,36 @@ async function retrieveElements(req, res, next) {
         return next(err);
     }
 }
-
+*/
 async function retrieveOne(req, res, next) {
     try {
+        let path = req.path.split('/')[2];
+        let options = {};
+        if (path === "allies") {
+            options.allies = true;
+        } else if (path === "elements") {
+            options.elements = true;
+        } 
+
         // Check if the logged in explorer is the same as the one being retrieved
         const explorerUuid = req.auth.uuid;
         if (explorerUuid !== req.params.uuid) {
             return next(HttpErrors.Forbidden());
         }
 
-        let explorer = await ExplorerRepository.retrieveOne(explorerUuid);
+        let explorer = await ExplorerRepository.retrieveOne(explorerUuid, options);
         if (!explorer) {
             return next(HttpErrors.NotFound());
-        } else {
-            explorer = explorer.toObject({ getters: false, virtuals: false });
-            explorer = ExplorerRepository.transform(explorer);
-            res.status(200).json(explorer);
         }
+        explorer = explorer.toObject({ getters: false, virtuals: false });
+        let responseData = ExplorerRepository.transform(explorer, options);
+        if (options.allies) {
+            responseData = responseData.allies;
+        } else if (options.elements) {
+            responseData = responseData.vault.elements;
+        }
+        
+        res.status(200).json(responseData);
     } catch (err) {
         return next(err);
     }
