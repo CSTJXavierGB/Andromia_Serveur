@@ -4,7 +4,6 @@ import parseDuration from 'parse-duration';
 
 import argon from 'argon2';
 import HttpErrors from 'http-errors';
-import { de } from '@faker-js/faker';
 
 class ExplorerRepository {
     async create(explorer) {
@@ -17,7 +16,11 @@ class ExplorerRepository {
     }
 
     update(explorerUUID, explorer) {
-        const updateQuery = Explorer.findOneAndUpdate({ uuid: explorerUUID }, { $set: Object.assign(explorer) }, { runValidators: true, new: true });
+        const updateQuery = Explorer.findOneAndUpdate(
+            { uuid: explorerUUID },
+            { $set: Object.assign(explorer) },
+            { runValidators: true, new: true }
+        );
 
         this.#handlePopulateOption(updateQuery);
 
