@@ -15,6 +15,14 @@ router.get('/:explorerUUID/listings', guardAuthorizationJWT, getAllListingsByExp
 async function getAllListingsByExplorerUUID(req, res, next) {
     try {
 
+        let options = {
+            limit: 100,
+            skip: 0
+        };
+        options = { ...options, ...assignEmbedOptions(req.query.embed) };
+
+
+
         const explorerUUID = req.params.explorerUUID;
         let filter = {};
 
@@ -47,10 +55,7 @@ async function getAllListingsByExplorerUUID(req, res, next) {
 
         }
 
-        let options = {
-            limit: 100,
-            skip: 0
-        };
+        
 
         let [listings, totalDocuments] = await listingRepository.retrieveByCriteria(filter, options);
 
@@ -60,7 +65,7 @@ async function getAllListingsByExplorerUUID(req, res, next) {
 
        listings = listings.map(listing => {
               listing = listing.toObject({ getters: false, virtuals: false });
-              listing = listingRepository.transform(listing);
+              listing = listingRepository.transform(listing,options);
               return listing;
        });
 
@@ -70,6 +75,31 @@ async function getAllListingsByExplorerUUID(req, res, next) {
     } catch (err) {
         return next(err);
     }
+}
+
+function assignEmbedOptions(reqEmbeds) {
+    let options = {};
+
+    if (reqEmbeds) {
+        switch (reqEmbeds) {
+            case 'all':
+                options.seller = true;
+                options.buyer = true;
+                options.ally = true;
+                break;
+            case 'seller':
+                options.seller = true;
+                break;
+            case 'buyer':
+                options.buyer = true;
+                break;
+            case 'ally':
+                options.ally = true;
+                break;
+        }
+    }
+
+    return options;
 }
 
 export default router;
