@@ -15,7 +15,7 @@ const router = express.Router();
 router.get('/explorations/:uuid', retrieveOne);
 router.get('/explorers/:uuid/explorations', retrieveAllFromExplorer);
 router.post('/explorers/:uuid/explorations/:key', post);
-router.patch('/explorations/:uuid/adopt', patch);
+router.patch('/explorations/:uuid/adopt', adopt);
 
 async function retrieveOne(req, res, next) {
   try {
@@ -62,9 +62,9 @@ async function retrieveAllFromExplorer(req, res, next) {
   }
 }
 
-async function patch(req, res, next) {
+async function adopt(req, res, next) {
   try {
-    let exploration = await explorationsRepository.retrieveOne(req.params.uuid, { ally: true });
+    let exploration = await explorationsRepository.retrieveOne(req.params.uuid, { ally: true, explorer: true });
     if (!exploration) {
       return next(HttpError.NotFound(`L'exploration avec le uuid ${req.params.uuidExploration} n'existe pas.`));
     }
@@ -80,6 +80,21 @@ async function patch(req, res, next) {
     if (dayjs().isAfter(expireDate)) {
       return next(HttpError.Forbidden("La période de temps pour adopter L'allié s'est expiré."));
     }
+    //Vérification du coût de l'alliée
+    let explorer = exploration.explorer;
+    exploration.ally.kernel.forEach(e => {
+      //Cherche si l'explorateur as l'élément
+      let explorerElementIndex = explorer.vault.elements.findIndex(eE => eE.element === e);
+      if (explorerElementIndex !== -1) {
+        //Si oui décrémente de un
+        explorer.vault.elements[explorerElementIndex].quantity--;
+      } else {
+        //Sinon retourne une erreur
+        throw next(HttpError.Forbidden("Vous n'avez pas tous les éléments nécessaires pour adopté cet allié."));
+      }
+    });
+    //sauvegarde les modification de l'explorateur
+    await explorersRepository.update(explorer.uuid, explorer);
 
     let ally = exploration.ally;
     ally.explorer = exploration.explorer._id;
