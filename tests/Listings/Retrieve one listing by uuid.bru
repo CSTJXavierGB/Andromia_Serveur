@@ -5,11 +5,15 @@ meta {
 }
 
 get {
-  url: {{base_url}}/listings/:uuidListing
+  url: {{base_url}}/listings/:uuidListing?embed=seller
   body: none
   auth: inherit
 }
 
+params:query {
+  embed: seller
+}
+
 params:path {
-  uuidListing: 
+  uuidListing: 83e458bd-9677-4c25-bb93-23cf3ad8f717
 }
