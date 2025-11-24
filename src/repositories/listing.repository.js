@@ -89,7 +89,8 @@ class ListingRepository {
         if (ally) {
             listing.ally = { href: `${process.env.BASE_URL}/allies/${ally.uuid}` };
             if (options.ally) {
-                listing.ally = allyRepository.transform(ally);
+                listing.ally = alliesRepository.transform(ally);
+                delete listing.ally.explorer;
             }
         }
 
