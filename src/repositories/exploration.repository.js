@@ -110,6 +110,7 @@ class ExplorationRepository {
         }
 
         exploration.href = `${process.env.BASE_URL}/explorations/${exploration.uuid}`;
+        exploration.adoptionHref = `${process.env.BASE_URL}/explorations/${exploration.uuid}/adopt`;
 
         exploration.explorationDate = dayjs(exploration.explorationDate).format('YYYY-MM-DD');        
 
