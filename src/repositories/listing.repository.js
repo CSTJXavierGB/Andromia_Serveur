@@ -65,6 +65,12 @@ class ListingRepository {
         return listing;
     }
 
+        
+    delete(listingUUID){
+       return Listing.deleteOne({ uuid: listingUUID });
+    }
+
+
     transform(listing, options = {}) {
         const buyer = listing.buyer;
         const seller = listing.seller;

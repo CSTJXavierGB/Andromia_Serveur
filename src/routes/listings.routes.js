@@ -1,6 +1,6 @@
 import express from 'express';
 import paginate, { hasNextPages } from 'express-paginate';
-import HttpError from 'http-errors';
+import HttpErrors from 'http-errors';
 
 import { generateMetaDataLinks } from '../core/paginationHandler.js';
 import { handlePageURLParam } from '../middlewares/page.value.middleware.js';
@@ -12,15 +12,16 @@ import listingRepository from '../repositories/listing.repository.js';
 const router = express.Router();
 
 router.get('/', handlePageURLParam, paginate.middleware(PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT), retrieveAll);
-router.get('/:listingUUID', retrieveOne);
+router.get('/:uuid', retrieveOne);
 router.post('/allies/:allyUUID', guardAuthorizationJWT, post);
+router.delete('/:uuid', guardAuthorizationJWT, deleteOne);
 
 async function retrieveOne(req, res, next) {
     try {
         let options = {};
         options = { ...options, ...assignEmbedOptions(req.query.embed) };
 
-        const listingUUID = req.params.listingUUID;
+        const listingUUID = req.params.uuid;
         var listing = await listingRepository.retrieveByUUID(listingUUID, options);
         if (!listing) {
             throw HttpErrors.NotFound('Listing not found');
@@ -85,6 +86,34 @@ async function post(req, res, next) {
         } else {
             res.status(201).json({ listing });
         }
+    } catch (err) {
+        return next(err);
+    }
+}
+
+
+async function deleteOne(req, res, next) {
+    try {
+
+        const listing = await listingRepository.retrieveByUUID(req.params.uuid);
+
+        // Validation que le listing existe
+        if (!listing) {
+            throw HttpErrors.NotFound('Listing not found');
+        }
+        // Validation que l'explorer connecté est le vendeur du listing
+        if (listing.seller.uuid !== req.auth.uuid) {
+            throw HttpErrors.Forbidden('You do not own this listing');
+        }
+        // Validation que le listing n'est pas déjà complété
+        if (listing.buyer) {
+            throw HttpErrors.Forbidden('Cannot cancel a completed listing');
+        }
+
+        await listingRepository.delete(req.params.uuid);
+
+        res.status(204).end();
+
     } catch (err) {
         return next(err);
     }
