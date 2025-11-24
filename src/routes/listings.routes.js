@@ -11,20 +11,23 @@ import listingRepository from '../repositories/listing.repository.js';
 
 const router = express.Router();
 
-router.get('/:listingUUID', retrieveOne);
 router.get('/', handlePageURLParam, paginate.middleware(PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT), retrieveAll);
+router.get('/:listingUUID', retrieveOne);
 router.post('/allies/:allyUUID', guardAuthorizationJWT, post);
 
 async function retrieveOne(req, res, next) {
     try {
+        let options = {};
+        options = { ...options, ...assignEmbedOptions(req.query.embed) };
+
         const listingUUID = req.params.listingUUID;
-        var listing = await listingRepository.retrieveByUUID(listingUUID);
+        var listing = await listingRepository.retrieveByUUID(listingUUID, options);
         if (!listing) {
             throw HttpErrors.NotFound('Listing not found');
         }
 
         listing = listing.toObject({ getters: false, virtuals: false });
-        listing = listingRepository.transform(listing);
+        listing = listingRepository.transform(listing, options);
 
         res.status(200).json({ listing });
     } catch (err) {
@@ -91,16 +94,24 @@ function assignEmbedOptions(reqEmbeds) {
     let options = {};
 
     if (reqEmbeds) {
-        if (reqEmbeds.includes('seller')) {
-            options.seller = true;
-        }
-        if (reqEmbeds.includes('buyer')) {
-            options.buyer = true;
-        }
-        if (reqEmbeds.includes('ally')) {
-            options.ally = true;
+        switch (reqEmbeds) {
+            case 'all':
+                options.seller = true;
+                options.buyer = true;
+                options.ally = true;
+                break;
+            case 'seller':
+                options.seller = true;
+                break;
+            case 'buyer':
+                options.buyer = true;
+                break;
+            case 'ally':
+                options.ally = true;
+                break;
         }
     }
+
     return options;
 }
 
