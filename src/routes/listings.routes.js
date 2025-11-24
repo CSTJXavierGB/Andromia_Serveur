@@ -8,12 +8,56 @@ import { PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT, PAGE_LINKS_NUMBER } f
 
 import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
 import listingRepository from '../repositories/listing.repository.js';
+import explorerRepository from '../repositories/explorer.repository.js';
+import allyRepository from '../repositories/ally.repository.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
 router.get('/', handlePageURLParam, paginate.middleware(PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT), retrieveAll);
 router.get('/:listingUUID', retrieveOne);
 router.post('/allies/:allyUUID', guardAuthorizationJWT, post);
+router.patch('/:listingUUID', guardAuthorizationJWT, buy);
+
+async function buy(req, res, next) {
+    const buySession = await mongoose.startSession();
+    try {
+        let buyer = await explorerRepository.retrieveOne(req.auth.uuid);
+        if (!buyer) {
+            //Si l'acheteur n'est pas trouver alors comment est-ce que le token à été crée?
+            return next(HttpError.NotFound("Le compte explorateur de l'achteur n'a pas été trouvé"));
+        }
+        let listing = await listingRepository.retrieveByUUID(req.params.listingUUID, {ally: true, seller: true});
+        if (!listing) {
+            return next(HttpError.NotFound(`L'annonce avec le uuid "${req.params.listingUUID}" n'a pas été trouvé`));
+        }
+        
+        let newInox = buyer.vault.inox - listing.inox;
+        if (newInox < 0) {
+            return next(HttpError.Forbidden(`Votre balance est insuffisante, il vous manque ${newInox * -1} inox.`));
+        }
+
+        let ally = listing.ally;
+        ally.explorer = buyer._id;
+
+        buyer.vault.inox = newInox;
+
+        let seller = listing.seller;
+        seller.vault.inox += listing.inox;
+
+        //Si une des actions échoue, tous échoues
+        buySession.startTransaction();
+            ally = await allyRepository.update(ally.uuid, ally);
+            await explorerRepository.update(buyer.uuid, buyer);
+            await explorerRepository.update(seller.uuid, seller);
+        await buySession.commitTransaction();
+
+    } catch (err) {
+        next(err);
+    } finally {
+        buySession.endSession();
+    }
+}
 
 async function retrieveOne(req, res, next) {
     try {
