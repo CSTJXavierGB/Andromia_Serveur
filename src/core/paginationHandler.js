@@ -3,6 +3,7 @@ import { PAGE_LINKS_NUMBER } from './constants.js';
 
 //Retourne un object qui contient les champs _metadata et _links
 function generateMetaDataLinks(totalDocuments, page, skip, limit, req) {
+    page = parseInt(page, 10);
     const totalPages = Math.ceil(totalDocuments / limit);
     const pageLinksFunction = paginate.getArrayPages(req);
     let pageLinks = pageLinksFunction(PAGE_LINKS_NUMBER, totalPages, page);
@@ -18,23 +19,30 @@ function generateMetaDataLinks(totalDocuments, page, skip, limit, req) {
     };
     response._links = {};
 
-    let _links = ['prev', 'self', 'next'];
+    // Build links by finding the correct page in pageLinks, or use first/last as fallback
+    const pagesToLink = {
+      prev: page > 1 ? page - 1 : null,
+      self: page,
+      next: page < totalPages ? page + 1 : null
+    };
 
-    if (page === 1) {
-      _links = _links.slice(1); // Remove 'prev'
-      pageLinks = pageLinks.slice(1); // Remove first page link
-    }
+    Object.entries(pagesToLink).forEach(([linkType, pageNum]) => {
+      if (pageNum !== null) {
+        let pageLink = pageLinks.find(pl => pl.number === pageNum);
 
-    if (page === totalPages) {
-      _links = _links.slice(0, _links.length - 1); // Remove 'next'
-      pageLinks = pageLinks.slice(0, pageLinks.length - 1); // Remove last page link
-    }
-
-    _links.forEach((link, index) => {
-      if (pageLinks[index]) {
-        response._links[link] = `${process.env.BASE_URL}${pageLinks[index].url}`;
+        // Fallback: if page not in pageLinks window, reconstruct URL
+        if (!pageLink && pageLinks.length > 0) {
+          const firstLink = pageLinks[0];
+          const urlParams = new URLSearchParams(firstLink.url.split('?')[1]);
+          urlParams.set('page', pageNum);
+          response._links[linkType] = `${process.env.BASE_URL}${req.baseUrl}?${urlParams.toString()}`;
+        } else if (pageLink) {
+          response._links[linkType] = `${process.env.BASE_URL}${pageLink.url}`;
+        }
       }
     });
+
+    
 
     return response;
 }
