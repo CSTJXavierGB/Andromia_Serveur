@@ -65,7 +65,6 @@ class ListingRepository {
     }
 
     update(listingUUID, listing) {
-        console.log(listing);
         const updateQuery = Listing.findOneAndUpdate(
             { uuid: listingUUID },
             { $set: Object.assign(listing) },

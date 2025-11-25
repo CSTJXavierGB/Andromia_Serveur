@@ -26,48 +26,60 @@ async function buy(req, res, next) {
         //---------Get info-----------
         let buyer = await explorerRepository.retrieveOne(req.auth.uuid);
         if (!buyer) {
-            //Si l'acheteur n'est pas trouver alors comment est-ce que le token à été crée?
             return next(HttpError.NotFound("Le compte explorateur de l'achteur n'a pas été trouvé"));
         }
         let listing = await listingRepository.retrieveByUUID(req.params.listingUUID, {ally: true, seller: true});
         if (!listing) {
-            return next(HttpError.NotFound(`L'annonce avec le uuid "${req.params.listingUUID}" n'a pas été trouvé`));
+            return next(HttpError.NotFound(`Vente avec le uuid "${req.params.listingUUID}" n'a pas été trouvé`));
+        }
+        
+        //---------Vérification-----------
+        if (listing.buyer) {
+            return next(HttpError.Forbidden(`L'allié en vente à déjà été acheté.`));
+        }
+        if (buyer.uuid === listing.seller.uuid) {
+            return next(HttpError.Forbidden(`Vous ne pouvez pas acheté votre propre vente.`));
         }
 
-        //---------Modify info-----------   
-        console.log(listing);
+        //---------Fabrication des objets update-----------
+        //Ils ont que les champs qui seront modifier.
         let newInox = buyer.vault.inox - listing.inox;
         if (newInox < 0) {
             return next(HttpError.Forbidden(`Votre balance est insuffisante, il vous manque ${newInox * -1} inox.`));
         }
 
-        let ally = listing.ally;
-        ally.explorer = buyer._id;
+        let allyUpdate = { explorer: buyer._id };
+        let buyerUpdate = {
+            vault : {
+                inox : newInox,
+                elements : buyer.vault.elements
+            }
+        };
+        let sellerUpdate = {
+            vault: {
+                inox: listing.seller.vault.inox + listing.inox,
+                elements : listing.seller.vault.elements
+            }
+        };
+        let listingUpdate = {
+            buyer : buyer._id,
+            completedAt : Date.now()
+        };
 
-        buyer.vault.inox = newInox;
-
-        let seller = listing.seller;
-        seller.vault.inox += listing.inox;
-
-        listing.buyer = buyer._id;
-        listing.completedAt = Date.now;
-
-        //---------Apply info-----------
+        //---------applique Update-----------
         //Si une des actions échoue, tous échoues
-        console.log(ally);
-        console.log(seller);
         buySession.startTransaction();
-            ally = await allyRepository.update(ally.uuid, ally);
-            await explorerRepository.update(buyer.uuid, buyer);
-            await explorerRepository.update(seller.uuid, seller);
-            await listingRepository.update(listing.uuid, listing);
+            let newAlly = await allyRepository.update(listing.ally.uuid, allyUpdate);
+            await explorerRepository.update(buyer.uuid, buyerUpdate);
+            await explorerRepository.update(listing.seller.uuid, sellerUpdate);
+            await listingRepository.update(listing.uuid, listingUpdate);
         await buySession.commitTransaction();
 
-        //---------Make response-----------
-        ally = ally.toObject({ getters: false, virtuals: false });
-        ally = allyRepository.transform(ally, options);
+        //---------Fait la reponse-----------
+        newAlly = newAlly.toObject({ getters: false, virtuals: false });
+        newAlly = allyRepository.transform(newAlly);
 
-        res.status(200).json(ally);
+        res.status(200).json(newAlly);
     } catch (err) {
         next(err);
     } finally {
