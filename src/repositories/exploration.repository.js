@@ -5,10 +5,10 @@ import explorerRepository from "./explorer.repository.js";
 
 class ExplorationRepository {
 
-    async create(exploration) {
+    async create(exploration, options) {
         const query = await Exploration.create(exploration);
 
-        this.#handlePopulateOption(query);
+        this.#handlePopulateOption(query, options);
 
         return query;
     }

@@ -85,12 +85,13 @@ async function adopt(req, res, next) {
     exploration.ally.kernel.forEach(e => {
       //Cherche si l'explorateur as l'élément
       let explorerElementIndex = explorer.vault.elements.findIndex(eE => eE.element === e);
-      if (explorerElementIndex !== -1) {
+      if (explorerElementIndex !== -1 &&
+        explorer.vault.elements[explorerElementIndex].quantity > 0) {
         //Si oui décrémente de un
         explorer.vault.elements[explorerElementIndex].quantity--;
       } else {
         //Sinon retourne une erreur
-        throw next(HttpError.Forbidden("Vous n'avez pas tous les éléments nécessaires pour adopté cet allié."));
+        throw HttpError.Forbidden("Vous n'avez pas tous les éléments nécessaires pour adopté cet allié.");
       }
     });
     //sauvegarde les modification de l'explorateur
@@ -112,10 +113,11 @@ async function adopt(req, res, next) {
 
 async function post(req, res, next) {
   try {
+    const options = { ally : true};
     //---Get les informations de l'exploration du serveur andromia---
     const portalUrl = process.env.EXPLORATION_URL + '/' + req.params.key;
     const portalRes = await axios.get(portalUrl, {
-      //Si le status est 404(géré plus bas) ou 200 throw une erreur(default est throw si non 200)
+      //Si le status est 404(géré plus bas) ou 200 ne throw pas une erreur(default est throw si non 200)
       validateStatus: status => {
         return status === 404 || status === 200
       }
@@ -139,11 +141,11 @@ async function post(req, res, next) {
     if (ally) {
       ally = explorationsRepository.transformBdAlly(ally);
       ally = await alliesRepository.create(ally);
-    }    
+    }
 
     //---Post de l'exploration---
     exploration = explorationsRepository.transformBdExploration(exploration, explorer, ally);
-    let newExploration = await explorationsRepository.create(exploration);
+    let newExploration = await explorationsRepository.create(exploration, options);
 
     //---Update de l'explorateur---
     explorer = explorationsRepository.transformBdExplorer(newExploration, explorer);
@@ -152,7 +154,7 @@ async function post(req, res, next) {
     //---Transformation des donnée pour le json retourné---
     newExploration = newExploration.toObject({ getters: false, virtuals: false });
     
-    newExploration = explorationsRepository.transform(newExploration);
+    newExploration = explorationsRepository.transform(newExploration, options);
 
     res.status(201).json(newExploration);
   } catch (err) {
