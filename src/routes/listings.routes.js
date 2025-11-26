@@ -198,6 +198,26 @@ function assignEmbedOptions(reqEmbeds) {
     let options = {};
 
     if (reqEmbeds) {
+      if (reqEmbeds.includes("all")) {
+        options.seller = true;
+        options.buyer = true;
+        options.ally = true;
+        return options;
+      }
+      if (reqEmbeds.includes("seller")) {
+        options.seller = true;
+      }
+      if (reqEmbeds.includes("buyer")) {
+        options.buyer = true;
+      }
+      if (reqEmbeds.includes("ally")) {
+        options.ally = true;
+      }
+    }
+    return options;
+}
+    /*
+    if (reqEmbeds) {
         switch (reqEmbeds) {
             case 'all':
                 options.seller = true;
@@ -215,8 +235,6 @@ function assignEmbedOptions(reqEmbeds) {
                 break;
         }
     }
-
-    return options;
-}
+    */
 
 export default router;
