@@ -27,26 +27,28 @@ async function buy(req, res, next) {
         //---------Get info-----------
         let buyer = await explorerRepository.retrieveOne(req.auth.uuid);
         if (!buyer) {
-            return next(HttpError.NotFound("Le compte explorateur de l'achteur n'a pas été trouvé"));
+            return next(HttpErrors.NotFound("Le compte explorateur de l'achteur n'a pas été trouvé"));
         }
+      
         let listing = await listingRepository.retrieveByUUID(req.params.listingUUID, {ally: true, seller: true});
+     
         if (!listing) {
-            return next(HttpError.NotFound(`Vente avec le uuid "${req.params.listingUUID}" n'a pas été trouvé`));
+            return next(HttpErrors.NotFound(`Vente avec le uuid "${req.params.listingUUID}" n'a pas été trouvé`));
         }
         
         //---------Vérification-----------
         if (listing.buyer) {
-            return next(HttpError.Forbidden(`L'allié en vente à déjà été acheté.`));
+            return next(HttpErrors.Forbidden(`L'allié en vente à déjà été acheté.`));
         }
         if (buyer.uuid === listing.seller.uuid) {
-            return next(HttpError.Forbidden(`Vous ne pouvez pas acheté votre propre vente.`));
+            return next(HttpErrors.Forbidden(`Vous ne pouvez pas acheté votre propre vente.`));
         }
 
         //---------Fabrication des objets update-----------
         //Ils ont que les champs qui seront modifier.
         let newInox = buyer.vault.inox - listing.inox;
         if (newInox < 0) {
-            return next(HttpError.Forbidden(`Votre balance est insuffisante, il vous manque ${newInox * -1} inox.`));
+            return next(HttpErrors.Forbidden(`Votre balance est insuffisante, il vous manque ${newInox * -1} inox.`));
         }
 
         let allyUpdate = { explorer: buyer._id };
