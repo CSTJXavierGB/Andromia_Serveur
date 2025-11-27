@@ -41,11 +41,15 @@ async function getAllListingsByExplorerUUID(req, res, next) {
                 case 'selling':
                    filter = {'seller' : explorer._id};
                     break;
+                    
                 case 'sold':
                     filter = {'buyer' : {$exists : true}, 'seller' : explorer._id};
                     break;
                 case 'bought':
                     filter = {'buyer' : explorer._id};
+                    break;
+                case 'both':
+                    filter = {'$or' : [ {'buyer' : explorer._id}, {'seller' : explorer._id} ] };
                     break;
                 case '':
                     break;
@@ -66,6 +70,16 @@ async function getAllListingsByExplorerUUID(req, res, next) {
        listings = listings.map(listing => {
               listing = listing.toObject({ getters: false, virtuals: false });
               listing = listingRepository.transform(listing,options);
+              
+              // Add role field when type is 'both' to help client distinguish
+              if (req.query.type === 'both') {
+                  if (listing.seller && listing.seller.href && listing.seller.href.includes(explorerUUID)) {
+                      listing.role = 'seller';
+                  } else if (listing.buyer && listing.buyer.href && listing.buyer.href.includes(explorerUUID)) {
+                      listing.role = 'buyer';
+                  }
+              }
+              
               return listing;
        });
 
