@@ -35,9 +35,7 @@ async function getAllListingsByExplorerUUID(req, res, next) {
             throw HttpErrors.Forbidden('You are not allowed to access these listings');
         }
 
-        if (req.query.type) {
-
-            switch (req.query.type) {
+        if (req.query.type) {            switch (req.query.type) {
                 case 'selling':
                    filter = {'seller' : explorer._id};
                     break;
@@ -49,7 +47,11 @@ async function getAllListingsByExplorerUUID(req, res, next) {
                     filter = {'buyer' : explorer._id};
                     break;
                 case 'both':
-                    filter = {'$or' : [ {'buyer' : explorer._id}, {'seller' : explorer._id} ] };
+                    // History: both sold and bought (completed transactions only)
+                    filter = {
+                        'buyer' : {$exists : true},
+                        '$or' : [ {'buyer' : explorer._id}, {'seller' : explorer._id} ]
+                    };
                     break;
                 case '':
                     break;
@@ -65,18 +67,16 @@ async function getAllListingsByExplorerUUID(req, res, next) {
 
         if (!listings || listings.length === 0) {
             return res.status(204).end();
-        }
-
-       listings = listings.map(listing => {
+        }       listings = listings.map(listing => {
               listing = listing.toObject({ getters: false, virtuals: false });
               listing = listingRepository.transform(listing,options);
               
               // Add role field when type is 'both' to help client distinguish
               if (req.query.type === 'both') {
                   if (listing.seller && listing.seller.href && listing.seller.href.includes(explorerUUID)) {
-                      listing.role = 'seller';
+                      listing.status = 'sold';
                   } else if (listing.buyer && listing.buyer.href && listing.buyer.href.includes(explorerUUID)) {
-                      listing.role = 'buyer';
+                      listing.status = 'bought';
                   }
               }
               
