@@ -12,6 +12,9 @@ import tokensRoutes from './routes/tokens.routes.js';
 import listingsRoutes from './routes/listings.routes.js';
 import explorerListingsRoutes from './routes/explorer.listings.routes.js';
 import methodOverride from 'method-override';
+import cron from 'node-cron';
+
+import explorerCronJobs from './src/jobs/explorer.jobs.js';
 
 const app = express();
 
@@ -21,6 +24,13 @@ database();
 app.use(cors());
 app.use(express.json());
 app.use(methodOverride('X-HTTP-Method-Override'))
+
+
+//Cron jobs
+cron.schedule('* * * * *', explorerCronJobs.addElementExplorerRandom);
+//TODO: À chaque multiple de 5 minutes de chaque heure
+//cron.schedule('* * * * *', explorerCronJobs.addInoxExplorerRandom);
+
 
 app.get('/status', (req, res) => {
     res.status(200).end();
