@@ -5,10 +5,10 @@ import explorerRepository from "./explorer.repository.js";
 
 class ExplorationRepository {
 
-    async create(exploration) {
+    async create(exploration, options) {
         const query = await Exploration.create(exploration);
 
-        this.#handlePopulateOption(query);
+        this.#handlePopulateOption(query, options);
 
         return query;
     }
@@ -110,6 +110,7 @@ class ExplorationRepository {
         }
 
         exploration.href = `${process.env.BASE_URL}/explorations/${exploration.uuid}`;
+        exploration.adoptionHref = `${process.env.BASE_URL}/explorations/${exploration.uuid}/adopt`;
 
         exploration.explorationDate = dayjs(exploration.explorationDate).format('YYYY-MM-DD');        
 

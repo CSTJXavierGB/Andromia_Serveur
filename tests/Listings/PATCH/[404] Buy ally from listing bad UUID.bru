@@ -1,0 +1,19 @@
+meta {
+  name: [404] Buy ally from listing bad UUID
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{base_url}}/listings/:listingUUID
+  body: none
+  auth: bearer
+}
+
+params:path {
+  listingUUID: ce51ba77-a15c-4bf8-abc4-91a7cacb90f8
+}
+
+auth:bearer {
+  token: thisIsBad
+}

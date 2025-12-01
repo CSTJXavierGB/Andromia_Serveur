@@ -5,13 +5,12 @@ import explorerRepository from './explorer.repository.js';
 import HttpErrors from 'http-errors';
 
 class ListingRepository {
-    async retrieveByUUID(uuid, options = {}) {
+    retrieveByUUID(uuid, options = {}) {
         const retrieveQuery = Listing.findOne({ uuid });
 
         this.#handlePopulateOption(retrieveQuery, options);
 
-        const listing = await retrieveQuery;
-        return listing;
+        return retrieveQuery;
     }
 
     retrieveByCriteria(filter, options) {
@@ -63,6 +62,18 @@ class ListingRepository {
         await listing.populate('buyer', 'uuid');
 
         return listing;
+    }
+
+    update(listingUUID, listing) {
+        const updateQuery = Listing.findOneAndUpdate(
+            { uuid: listingUUID },
+            { $set: Object.assign(listing) },
+            { runValidators: true, new: true }
+        );
+
+        this.#handlePopulateOption(updateQuery);
+
+        return updateQuery;
     }
 
         

@@ -1,0 +1,19 @@
+meta {
+  name: [200] Buy ally from listing
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{base_url}}/listings/:listingUUID
+  body: none
+  auth: bearer
+}
+
+params:path {
+  listingUUID: 595cf16e-711c-4be0-9584-d720e776f9b1
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjhlNGQxOTMtYjY1Yy00MjhhLTkyYTAtMDYwOTJlMjM5NjZlIiwiaWF0IjoxNzY0MjIxMjUwLCJleHAiOjE3NjQyMjQ4NTAsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6Njc2NyJ9.YUr_MAFtdXhU3VaI1EoVFnuAd7icYYdctEky_u_Uuw0
+}

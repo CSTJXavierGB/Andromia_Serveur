@@ -7,14 +7,88 @@ import { handlePageURLParam } from '../middlewares/page.value.middleware.js';
 import { PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT, PAGE_LINKS_NUMBER } from '../core/constants.js';
 
 import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
+
 import listingRepository from '../repositories/listing.repository.js';
+import explorerRepository from '../repositories/explorer.repository.js';
 import allyRepository from '../repositories/ally.repository.js';
+import mongoose from 'mongoose';
+
 const router = express.Router();
 
 router.get('/', handlePageURLParam, paginate.middleware(PAGINATION_PAGE_LIMIT, PAGINATION_PAGE_MAX_LIMIT), retrieveAll);
 router.get('/:uuid', retrieveOne);
 router.post('/allies/:allyUUID', guardAuthorizationJWT, post);
 router.delete('/:uuid', guardAuthorizationJWT, deleteOne);
+router.patch('/:listingUUID', guardAuthorizationJWT, buy);
+
+async function buy(req, res, next) {
+    const buySession = await mongoose.startSession();
+    try {
+        //---------Get info-----------
+        let buyer = await explorerRepository.retrieveOne(req.auth.uuid);
+        if (!buyer) {
+            return next(HttpErrors.NotFound("Le compte explorateur de l'achteur n'a pas été trouvé"));
+        }
+      
+        let listing = await listingRepository.retrieveByUUID(req.params.listingUUID, {ally: true, seller: true});
+     
+        if (!listing) {
+            return next(HttpErrors.NotFound(`Vente avec le uuid "${req.params.listingUUID}" n'a pas été trouvé`));
+        }
+        
+        //---------Vérification-----------
+        if (listing.buyer) {
+            return next(HttpErrors.Forbidden(`L'allié en vente à déjà été acheté.`));
+        }
+        if (buyer.uuid === listing.seller.uuid) {
+            return next(HttpErrors.Forbidden(`Vous ne pouvez pas acheté votre propre vente.`));
+        }
+
+        //---------Fabrication des objets update-----------
+        //Ils ont que les champs qui seront modifier.
+        let newInox = buyer.vault.inox - listing.inox;
+        if (newInox < 0) {
+            return next(HttpErrors.Forbidden(`Votre balance est insuffisante, il vous manque ${newInox * -1} inox.`));
+        }
+
+        let allyUpdate = { explorer: buyer._id };
+        let buyerUpdate = {
+            vault : {
+                inox : newInox,
+                elements : buyer.vault.elements
+            }
+        };
+        let sellerUpdate = {
+            vault: {
+                inox: listing.seller.vault.inox + listing.inox,
+                elements : listing.seller.vault.elements
+            }
+        };
+        let listingUpdate = {
+            buyer : buyer._id,
+            completedAt : Date.now()
+        };
+
+        //---------applique Update-----------
+        //Si une des actions échoue, tous échoues
+        buySession.startTransaction();
+            let newAlly = await allyRepository.update(listing.ally.uuid, allyUpdate);
+            await explorerRepository.update(buyer.uuid, buyerUpdate);
+            await explorerRepository.update(listing.seller.uuid, sellerUpdate);
+            await listingRepository.update(listing.uuid, listingUpdate);
+        await buySession.commitTransaction();
+
+        //---------Fait la reponse-----------
+        newAlly = newAlly.toObject({ getters: false, virtuals: false });
+        newAlly = allyRepository.transform(newAlly);
+
+        res.status(200).json(newAlly);
+    } catch (err) {
+        next(err);
+    } finally {
+        buySession.endSession();
+    }
+}
 
 async function retrieveOne(req, res, next) {
     try {
