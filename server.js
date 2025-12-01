@@ -2,14 +2,14 @@ import { env } from 'node:process';
 import chalk from 'chalk';
 
 import app from './src/app.js';
-import cron from 'node-cron';
+// import cron from 'node-cron';
 
-import explorerCronJobs from './src/jobs/explorer.jobs.js';
+// import explorerCronJobs from './src/jobs/explorer.jobs.js';
 
-//Cron jobs
-cron.schedule('0 * * * *', explorerCronJobs.addElementExplorerRandom);
-//TODO: À chaque multiple de 5 minutes de chaque heure
-//cron.schedule('* * * * *', explorerCronJobs.addInoxExplorerRandom);
+// //Cron jobs
+// cron.schedule('0 * * * *', explorerCronJobs.addElementExplorerRandom);
+// //TODO: À chaque multiple de 5 minutes de chaque heure
+// //cron.schedule('* * * * *', explorerCronJobs.addInoxExplorerRandom);
 
 //App
 app.listen(env.PORT, (err) => {

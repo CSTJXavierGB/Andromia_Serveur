@@ -149,6 +149,7 @@ async function post(req, res, next) {
         const explorerUuid = req.auth.uuid;
         const inox = req.body.inox;
 
+    
         let listing = await listingRepository.create(allyUUID, explorerUuid, inox);
 
         listing = listing.toObject({ getters: false, virtuals: false });
