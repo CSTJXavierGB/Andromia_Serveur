@@ -14,7 +14,7 @@ import explorerListingsRoutes from './routes/explorer.listings.routes.js';
 import methodOverride from 'method-override';
 import cron from 'node-cron';
 
-import explorerCronJobs from './src/jobs/explorer.jobs.js';
+import explorerCronJobs from './jobs/explorer.jobs.js';
 
 const app = express();
 
