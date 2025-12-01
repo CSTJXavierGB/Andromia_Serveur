@@ -32,7 +32,7 @@ class ListingRepository {
             throw HttpErrors.NotFound('Ally not found');
         }
 
-        const isDuplicate = await Listing.findOne({ ally: ally._id });
+        const isDuplicate = await Listing.findOne({ ally: ally._id, completedAt: null });
         if (isDuplicate) {
             throw HttpErrors.Conflict('This ally is already listed for sale');
         }
