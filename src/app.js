@@ -16,6 +16,11 @@ import cron from 'node-cron';
 
 import explorerCronJobs from './jobs/explorer.jobs.js';
 
+//Cron jobs
+cron.schedule('* * * * *', explorerCronJobs.addElementExplorerRandom);
+//TODO: À chaque multiple de 5 minutes de chaque heure
+//cron.schedule('* * * * *', explorerCronJobs.addInoxExplorerRandom);
+
 const app = express();
 
 database();
@@ -26,10 +31,7 @@ app.use(express.json());
 app.use(methodOverride('X-HTTP-Method-Override'))
 
 
-//Cron jobs
-cron.schedule('* * * * *', explorerCronJobs.addElementExplorerRandom);
-//TODO: À chaque multiple de 5 minutes de chaque heure
-//cron.schedule('* * * * *', explorerCronJobs.addInoxExplorerRandom);
+
 
 
 app.get('/status', (req, res) => {
