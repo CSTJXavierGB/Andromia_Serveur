@@ -6,7 +6,12 @@ import explorerRepository from '../repositories/explorer.repository.js';
 class explorerCronJobs {
     async addElementExplorerRandom() {
         try {
-            
+            console.log(
+                chalk.greenBright('Start') +
+                ' of ' +
+                chalk.bold('addElementExplorerRandom') +
+                ' cron job function!'
+            );
             explorerRepository.updateMany(
                 {
                     $inc : {'vault.elements.$[].quantity': Random.int(1, 3)}
