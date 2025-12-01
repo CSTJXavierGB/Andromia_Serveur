@@ -12,6 +12,10 @@ import tokensRoutes from './routes/tokens.routes.js';
 import listingsRoutes from './routes/listings.routes.js';
 import explorerListingsRoutes from './routes/explorer.listings.routes.js';
 import methodOverride from 'method-override';
+import explorerCronJobs from './jobs/explorer.jobs.js';
+import cron from 'node-schedule';
+
+cron.scheduleJob('* * * * *', explorerCronJobs.addElementExplorerRandom);
 
 const app = express();
 
