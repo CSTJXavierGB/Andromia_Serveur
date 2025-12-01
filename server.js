@@ -12,12 +12,18 @@ import app from './src/app.js';
 // //cron.schedule('* * * * *', explorerCronJobs.addInoxExplorerRandom);
 
 //App
-app.listen(env.PORT, (err) => {
+// Only start server if not in Vercel serverless environment
+if (!process.env.VERCEL) {
+    app.listen(env.PORT, (err) => {
 
-    if (err) {
-        process.exit(1);
-    }
+        if (err) {
+            process.exit(1);
+        }
 
-    console.log(`Loading environment for ${env.ENV}`);
-    console.log(chalk.blue(`Server listening on port: ${env.PORT}`));
-});
+        console.log(`Loading environment for ${env.ENV}`);
+        console.log(chalk.blue(`Server listening on port: ${env.PORT}`));
+    });
+}
+
+// Export for Vercel serverless
+export default app;
