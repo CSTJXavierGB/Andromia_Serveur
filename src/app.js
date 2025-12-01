@@ -11,15 +11,8 @@ import sessionsRoutes from './routes/sessions.routes.js';
 import tokensRoutes from './routes/tokens.routes.js';
 import listingsRoutes from './routes/listings.routes.js';
 import explorerListingsRoutes from './routes/explorer.listings.routes.js';
+import cronRoutes from './routes/cron.routes.js';
 import methodOverride from 'method-override';
-import cron from 'node-cron';
-
-import explorerCronJobs from './jobs/explorer.jobs.js';
-
-//Cron jobs
-cron.schedule('* * * * *', explorerCronJobs.addElementExplorerRandom);
-//TODO: À chaque multiple de 5 minutes de chaque heure
-//cron.schedule('* * * * *', explorerCronJobs.addInoxExplorerRandom);
 
 const app = express();
 
@@ -48,6 +41,7 @@ app.use('/sessions', sessionsRoutes);
 app.use('/listings', listingsRoutes);
 app.use('/tokens', tokensRoutes);
 app.use('/explorers', explorerListingsRoutes);
+app.use('/cron', cronRoutes);
 
 app.use(errors);
 
