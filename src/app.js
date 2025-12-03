@@ -16,6 +16,7 @@ import explorerCronJobs from './jobs/explorer.jobs.js';
 import cron from 'node-schedule';
 
 cron.scheduleJob('0 * * * *', explorerCronJobs.addElementExplorerRandom);
+cron.scheduleJob('*/5 * * * *', explorerCronJobs.addInoxExplorerRandom);
 
 const app = express();
 
