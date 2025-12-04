@@ -37,7 +37,7 @@ async function getAllListingsByExplorerUUID(req, res, next) {
 
         if (req.query.type) {            switch (req.query.type) {
                 case 'selling':
-                   filter = {'seller' : explorer._id};
+                   filter = {'seller' : explorer._id, 'buyer' : {$exists : false}};
                     break;
                     
                 case 'sold':
