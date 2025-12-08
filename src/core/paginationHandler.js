@@ -5,7 +5,7 @@ import { PAGE_LINKS_NUMBER } from './constants.js';
 
 //Retourne un object qui contient les champs _metadata et _links
 function generateMetaDataLinks(totalDocuments, page, skip, limit, req) {
-  if (!page || !skip) {
+  if (!page) {
     throw HttpErrors.BadRequest("Option de la page (skip ou/et currentpage) est/sont manquante(s)")
   }
   page = parseInt(page, 10);
