@@ -13,7 +13,7 @@ const explorerSchema = mongoose.Schema(
                     quantity: { type: Number, default: 0, min: 0 },
                     element: { type: String, default: '' },
                     _id: false
-                }
+                },
             ]
         },
         location: { type: String, default: '' }

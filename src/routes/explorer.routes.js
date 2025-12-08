@@ -2,11 +2,10 @@ import express from 'express';
 import HttpErrors from 'http-errors';
 
 import ExplorerRepository from '../repositories/explorer.repository.js';
-
-import ExplorationsRoutes from './explorations.routes.js';
+import allyRepository from '../repositories/ally.repository.js';
 
 import { guardAuthorizationJWT } from '../middlewares/authorization.jwt.js';
-import allyRepository from '../repositories/ally.repository.js';
+import { ELEMENTS_NAME } from '../core/constants.js';
 
 const router = express.Router();
 
@@ -17,7 +16,25 @@ router.get('/:uuid/allies', guardAuthorizationJWT, retrieveExplorersAllies);
 
 async function post(req, res, next) {
     try {
-        let explorer = await ExplorerRepository.create(req.body);
+        let explorer = req.body;
+        //Ne prend en compte just le username et le mot de passe
+        explorer = {
+            username : explorer.username,
+            password : explorer.password,
+            vault : {
+                elements : []
+            }
+        };
+
+        //Ajoute tous les éléments
+        ELEMENTS_NAME.forEach(elementName => {
+            explorer.vault.elements.push({
+                quantity: 0,
+                element: elementName
+            });
+        });
+
+        explorer = await ExplorerRepository.create(explorer);
 
         explorer = explorer.toObject({ getters: false, virtuals: false });
         explorer = ExplorerRepository.transform(explorer);
