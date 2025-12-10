@@ -1,0 +1,39 @@
+meta {
+  name: [200] Create a new listing
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/listings/allies/:uuidAlly?_body=true
+  body: json
+  auth: bearer
+}
+
+params:query {
+  _body: true
+}
+
+params:path {
+  uuidAlly: {{allyUUID}}
+}
+
+auth:bearer {
+  token: {{explorerAccessToken}}
+}
+
+body:json {
+  {
+    
+    "inox":"120"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:post-response {
+  const urlInfo = res.body.href.split("/");
+  bru.setEnvVar("listingUUID", urlInfo.reverse()[0]);
+}

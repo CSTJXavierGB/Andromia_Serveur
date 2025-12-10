@@ -1,0 +1,26 @@
+meta {
+  name: [201] - Create new tokens with a refresh token
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/tokens
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refreshToken":"{{explorerRefreshToken}}"
+  }
+}
+
+assert {
+  res.status: eq 201
+}
+
+script:post-response {
+  bru.setEnvVar("explorerAccessToken", res.body.access);
+  bru.setEnvVar("explorerRefreshToken", res.body.refresh);
+}

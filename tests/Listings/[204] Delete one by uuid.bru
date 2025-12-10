@@ -1,0 +1,23 @@
+meta {
+  name: [204] Delete one by uuid
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{base_url}}/listings/:uuid
+  body: none
+  auth: bearer
+}
+
+params:path {
+  uuid: {{listingUUID}}
+}
+
+auth:bearer {
+  token: {{explorerAccessToken}}
+}
+
+assert {
+  res.status: eq 204
+}

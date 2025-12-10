@@ -1,0 +1,25 @@
+meta {
+  name: [200] - Retrieve one explorer embed allies
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/explorers/:uuid
+  body: none
+  auth: bearer
+}
+
+params:path {
+  uuid: {{explorerUUID}}
+}
+
+auth:bearer {
+  token: {{explorerAccessToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.allies: isDefined
+}

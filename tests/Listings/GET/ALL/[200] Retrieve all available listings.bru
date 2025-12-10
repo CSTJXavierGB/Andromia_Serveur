@@ -1,0 +1,28 @@
+meta {
+  name: [200] Retrieve all available listings
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/listings?status=available&limit=10&page=1&
+  body: none
+  auth: inherit
+}
+
+params:query {
+  status: available
+  limit: 10
+  page: 1
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.data: isArray
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

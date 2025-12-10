@@ -1,0 +1,24 @@
+meta {
+  name: [200] - Retrieve explorer elements
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/explorers/:uuid/elements
+  body: none
+  auth: bearer
+}
+
+params:path {
+  uuid: {{explorerUUID}}
+}
+
+auth:bearer {
+  token: {{explorerAccessToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}

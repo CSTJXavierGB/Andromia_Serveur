@@ -1,0 +1,25 @@
+meta {
+  name: [200] Retrieve one listing by uuid
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/listings/:uuidListing?embed=seller
+  body: none
+  auth: inherit
+}
+
+params:query {
+  embed: seller
+}
+
+params:path {
+  uuidListing: {{listingUUID}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.seller.vault: isDefined
+}

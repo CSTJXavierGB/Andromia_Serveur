@@ -1,0 +1,24 @@
+meta {
+  name: [200] - Retrieve explorer allies
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{base_url}}/explorers/:uuid/allies
+  body: none
+  auth: bearer
+}
+
+params:path {
+  uuid: {{explorerUUID}}
+}
+
+auth:bearer {
+  token: {{explorerAccessToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}
