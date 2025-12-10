@@ -5,9 +5,14 @@ meta {
 }
 
 post {
-  url: {{base_url}}/explorers/ff16cce6-29b-49b8-867a-f481da3f85c0/explorations/K@[5449:E5E3:98B6:0779:ACA9]
+  url: {{base_url}}/explorers/:explorerUUID/explorations/:key
   body: none
   auth: inherit
+}
+
+params:path {
+  explorerUUID: thisIsABadUUID
+  key: K@[5449:E5E3:98B6:0779:ACA9]
 }
 
 assert {

@@ -43,7 +43,6 @@ class AllyRepository {
     }
 
     async update(allyUUID, ally) {
-        console.log(allyUUID);
         const updateQuery = Ally.findOneAndUpdate(
             { uuid: allyUUID }, 
             { $set: Object.assign(ally) }, 

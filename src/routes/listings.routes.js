@@ -27,11 +27,10 @@ async function buy(req, res, next) {
         //---------Get info-----------
         let buyer = await explorerRepository.retrieveOne(req.auth.uuid);
         if (!buyer) {
-            return next(HttpErrors.NotFound("Le compte explorateur de l'achteur n'a pas été trouvé"));
+            return next(HttpErrors.NotFound("Votre compte explorateur n'a pas été trouvé"));
         }
       
-        let listing = await listingRepository.retrieveByUUID(req.params.listingUUID, {ally: true, seller: true});
-     
+        let listing = await listingRepository.retrieveByUUID(req.params.listingUUID, {ally: true, seller: true});     
         if (!listing) {
             return next(HttpErrors.NotFound(`Vente avec le uuid "${req.params.listingUUID}" n'a pas été trouvé`));
         }

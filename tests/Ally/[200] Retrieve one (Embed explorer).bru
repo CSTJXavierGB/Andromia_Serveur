@@ -1,7 +1,7 @@
 meta {
   name: [200] Retrieve one (Embed explorer)
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
@@ -15,5 +15,11 @@ params:query {
 }
 
 params:path {
-  uuid: a6ae6c48-fa32-4d0d-a6ab-3ed12728f499
+  uuid: {{allyUUID}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+  res.body.explorer.vault: isDefined
 }

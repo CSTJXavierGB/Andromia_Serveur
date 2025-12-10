@@ -17,3 +17,8 @@ params:path {
 auth:bearer {
   token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMDlmNjRlZGEtOTY4NS00OWI3LWIxOWYtZDY0MWMzYTQ3NGM4IiwiaWF0IjoxNzY0NzI1NDkzLCJleHAiOjE3NjQ3MjYwOTMsImlzcyI6Imh0dHBzOi8vYW5kcm9taWEtc2VydmV1ci52ZXJjZWwuYXBwIn0.OLAwkYkE0EhWdxJBsgJc1jirg7KwdykPacxGpx-QSso
 }
+
+assert {
+  res.status: eq 200
+  res.body: isJson
+}

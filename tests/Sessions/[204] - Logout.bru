@@ -11,11 +11,16 @@ delete {
 }
 
 auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMDlmNjRlZGEtOTY4NS00OWI3LWIxOWYtZDY0MWMzYTQ3NGM4IiwiaWF0IjoxNzYyMjA3MjI5LCJleHAiOjE3NjIyMDc4MjksImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCJ9.85ZrmKQKyYyC_Nv0KX9x7UgRFyf9gXfb0Dm6kVsdRPA
+  token: {{explorerAccessToken}}
 }
 
 body:json {
   {
-    "refreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMDlmNjRlZGEtOTY4NS00OWI3LWIxOWYtZDY0MWMzYTQ3NGM4IiwiaWF0IjoxNzYyMjA3NDQ3LCJleHAiOjE3NjIyOTM4NDcsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTAwMCJ9.K-Cc8axIh1g1m-sDQq_uskSabSLiEcMTq6hZkzx1HxA"
+    "refreshToken":"{{explorerRefreshToken}}"
   }
+}
+
+assert {
+  res.status: eq 204
+  res.body: isEmpty
 }

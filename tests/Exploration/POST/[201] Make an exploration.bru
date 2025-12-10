@@ -5,12 +5,22 @@ meta {
 }
 
 post {
-  url: {{base_url}}/explorers/{{explorerUUID}}/explorations/K@[5449:E5E3:98B6:0779:ACA9]
+  url: {{base_url}}/explorers/:explorerUUID/explorations/:key
   body: none
   auth: inherit
+}
+
+params:path {
+  explorerUUID: {{explorerUUID}}
+  key: K@[5449:E5E3:98B6:0779:ACA9]
 }
 
 assert {
   res.status: eq 201
   res.body: isJson
+}
+
+script:post-response {
+  const urlInfo = res.body.href.split("/");
+  bru.setEnvVar("explorationUUID", urlInfo.reverse()[0]);
 }

@@ -93,15 +93,6 @@ class ExplorerRepository {
             });
         }
 
-        // if (options.allies && explorer.allies) {
-        //     explorer.allies.forEach(ally => {
-        //         ally.href = `${process.env.BASE_URL}/allies/${ally.uuid}`;
-        //         delete ally._id;
-        //         delete ally.__v;
-        //         delete ally.uuid;
-        //     });
-        // }
-
         delete explorer.uuid;
         delete explorer._id;
         delete explorer.__v;

@@ -12,7 +12,18 @@ post {
 
 body:json {
   {
-    "username":"explorer3",
-    "password":"explorer123456"
+    "username":"{{explorerUserName}}",
+    "password":"{{explorerPassword}}"
   }
+}
+
+assert {
+  res.status: eq 201
+  res.body: isJson
+  res.body.tokens: isDefined
+}
+
+script:post-response {
+  bru.setEnvVar("explorerAccessToken", res.body.tokens.access);
+  bru.setEnvVar("explorerRefreshToken", res.body.tokens.refresh);
 }

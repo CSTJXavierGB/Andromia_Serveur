@@ -12,7 +12,11 @@ post {
 
 body:json {
   {
-    "username":"explorer",
-    "password":"explorer123456"
+    "username":"{{explorerUUID}}",
+    "password":"Badpassword123"
   }
+}
+
+assert {
+  res.status: eq 401
 }

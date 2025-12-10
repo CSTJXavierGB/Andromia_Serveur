@@ -14,7 +14,6 @@ class ExplorationRepository {
     }
 
     retrieveByCriteria(criteria, options) {
-
         const retrieveQuery = Exploration.find(criteria);
 
         this.#handlePopulateOption(retrieveQuery, options);

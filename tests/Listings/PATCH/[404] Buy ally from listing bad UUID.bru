@@ -17,3 +17,7 @@ params:path {
 auth:bearer {
   token: thisIsBad
 }
+
+assert {
+  res.status: eq 404
+}

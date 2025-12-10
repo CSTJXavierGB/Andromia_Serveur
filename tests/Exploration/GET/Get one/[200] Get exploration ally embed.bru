@@ -15,10 +15,11 @@ params:query {
 }
 
 params:path {
-  explorationUUID: 5a462ef5-1161-4471-9b01-c8eb8fbc9fe7
+  explorationUUID: {{explorationUUID}}
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
+  res.body.ally.kernel: isDefined
 }

@@ -11,10 +11,15 @@ patch {
 }
 
 params:path {
-  explorationUUID: 732c997b-9c48-48a8-8bf5-641941ac58ba
+  explorationUUID: {{explorationUUID}}
 }
 
 assert {
   res.status: eq 200
   res.body: isJson
+}
+
+script:post-response {
+  const urlInfo = res.body.href.split("/");
+  bru.setEnvVar("allyUUID", urlInfo.reverse()[0]);
 }
